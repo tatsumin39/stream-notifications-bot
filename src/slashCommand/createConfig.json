@@ -1,0 +1,22 @@
+[
+  {
+    "name": "live",
+    "description": "現在配信中の動画を表示します。"
+  },
+  {
+    "name": "upcoming",
+    "description": "配信開始予定の動画を表示します。",
+    "options": [
+      {
+        "name": "minutes",
+        "description": "何分以内に開始予定の配信を確認しますか？",
+        "type": 4,
+        "required": false
+      }
+    ]
+  },
+  {
+    "name": "reminderlist",
+    "description": "登録されているリマインダーを表示します。"
+  }
+]
