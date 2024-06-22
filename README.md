@@ -38,7 +38,7 @@
 
 このプロジェクトを実行する前に、以下のものが必要です。
 
-- Node.js（バージョン12以上推奨）
+- Node.js
 - npm (Node.jsに付属)
 - PostgreSQL
 - 有効なDiscord Botトークン
@@ -462,7 +462,7 @@ This project uses a Discord bot to notify you of live YouTube feeds and videos. 
 
 Before running this project, you will need the following
 
-- Node.js (version 12 or higher recommended)
+- Node.js
 - npm (included with Node.js)
 - PostgreSQL
 - A valid Discord Bot token
