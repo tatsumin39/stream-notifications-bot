@@ -1,8 +1,16 @@
+// ReadableStreamポリフィルを追加
+if (typeof ReadableStream === 'undefined') {
+  global.ReadableStream = require('web-streams-polyfill/ponyfill/es6').ReadableStream;
+}
+
+// 環境変数の読み込み
 import dotenv from 'dotenv';
 dotenv.config();
 
-import './src/discord/bot.js'; // Discord Botを起動
+// Discord Botを起動
+import './src/discord/bot.js';
 
+// タスクのインポート
 import { startYoutubeFeed } from './src/tasks/youtubeFeed.js';
 import { searchAndScheduleReminders } from './src/tasks/reminderScheduler.js';
 import schedule from 'node-schedule';
