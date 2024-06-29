@@ -14,7 +14,7 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
   const dbUpdatedDate = new Date(existingData.updated).getTime();
 
   if (rssUpdatedDate !== dbUpdatedDate) {
-    if (live == 'upcoming' || live == 'live') {
+    if (live == 'none' || live == 'upcoming' || live == 'live') {
       const apiVideoInfo = await fetchVideoInfo(video_id);
       if (!apiVideoInfo) {
         console.log(`ビデオ情報が見つかりませんでした - ビデオID: ${video_id}`);

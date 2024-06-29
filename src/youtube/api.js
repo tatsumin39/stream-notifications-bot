@@ -58,18 +58,14 @@ export async function fetchVideoInfo(videoId) {
     console.log(`🤖  YouTube.Videos.list API実行: ${apiVideoInfo.snippet.title} videoId: ${videoId}`);
 
     let liveBroadcastContent = 'none';
-    if (apiVideoInfo.liveStreamingDetails) {
-      if (apiVideoInfo.liveStreamingDetails.actualStartTime && !apiVideoInfo.liveStreamingDetails.actualEndTime) {
-        liveBroadcastContent = 'live';
-      } else if (!apiVideoInfo.liveStreamingDetails.actualStartTime && apiVideoInfo.liveStreamingDetails.scheduledStartTime) {
-        liveBroadcastContent = 'upcoming';
-      } else if (apiVideoInfo.liveStreamingDetails.actualEndTime) {
-        liveBroadcastContent = 'archive';
-      }
-    } else if (!apiVideoInfo.liveStreamingDetails) {
+    if (!apiVideoInfo.liveStreamingDetails) {
       liveBroadcastContent = 'video';
-    } else {
-      console.log(`apiVideoInfo.liveStreamingDetails判定がおかしい`);
+    }else if (apiVideoInfo.snippet.liveBroadcastContent === 'upcoming') {
+      liveBroadcastContent = 'upcoming';
+    } else if (apiVideoInfo.snippet.liveBroadcastContent === 'live') {
+      liveBroadcastContent = 'live';
+    }else if (apiVideoInfo.snippet.liveBroadcastContent === 'none' && apiVideoInfo.liveStreamingDetails.actualEndTime) {
+      liveBroadcastContent = 'archive';
     }
 
     return {
