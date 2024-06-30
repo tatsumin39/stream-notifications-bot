@@ -75,7 +75,7 @@ export async function fetchVideoInfo(videoId) {
       scheduled_start_time: apiVideoInfo.liveStreamingDetails?.scheduledStartTime || null,
       actual_start_time: apiVideoInfo.liveStreamingDetails?.actualStartTime || null,
       actualEndTime: apiVideoInfo.liveStreamingDetails?.actualEndTime || null,
-      duration: convertDuration(apiVideoInfo.contentDetails.duration)
+      duration: apiVideoInfo.contentDetails?.duration ? convertDuration(apiVideoInfo.contentDetails.duration) : "00:00:00"
     };
   } catch (error) {
     console.error(`fetchVideoInfoでエラーが発生しました - ビデオID: ${videoId}, エラーメッセージ: ${error.message}`);
