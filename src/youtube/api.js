@@ -30,7 +30,7 @@ export async function fetchChannelInfo(channel_id) {
     const channelSnippet = response.data.items[0].snippet;
     if (channelSnippet.thumbnails && channelSnippet.thumbnails.default) {
       const thumbnailUrl = channelSnippet.thumbnails.default.url;
-      console.log(`チャンネル名: ${channelSnippet.title} の新しいアイコンURLは ${thumbnailUrl} です`);
+      console.log(`チャンネル名: ${channelSnippet.title} の新しいアイコンURLは ${thumbnailUrl} です。`);
       await updateChannelIcon(thumbnailUrl, channel_id);
     } else {
       console.log(`チャンネルID ${channel_id} のサムネイルが見つかりません。`);
