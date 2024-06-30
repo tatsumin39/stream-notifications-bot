@@ -51,7 +51,7 @@ export async function fetchVideoInfo(videoId) {
     });
 
     if (!response.data.items || response.data.items.length === 0) {
-      throw new Error('ビデオ情報が見つかりませんでした');
+      throw new Error('ビデオ情報が見つかりませんでした。');
     }
 
     const apiVideoInfo = response.data.items[0];
