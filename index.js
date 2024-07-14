@@ -13,10 +13,12 @@ import './src/discord/bot.js';
 // タスクのインポート
 import { startYoutubeFeed } from './src/tasks/youtubeFeed.js';
 import { searchAndScheduleReminders } from './src/tasks/reminderScheduler.js';
+import { cleanUpVideoData } from './src/tasks/cleanUpVideoData.js';
 import schedule from 'node-schedule';
 
 // スケジュール間隔の定数
 const ONE_MINUTE_SCHEDULE = '0 * * * * *'; // 1分ごと
+const FIVE_MINUTE_SCHEDULE = '0 */5 * * * *'; // 5分ごと
 const TEN_MINUTE_SCHEDULE = '0 */10 * * * *'; // 10分ごと
 
 // 1分ごとに実行するスケジュール
@@ -25,6 +27,15 @@ schedule.scheduleJob(ONE_MINUTE_SCHEDULE, function() {
   try {
     startYoutubeFeed(process.env.DISCORD_LIVE_CHANNEL_NAME, process.env.DISCORD_LIVE_WEBHOOK_URL);
     searchAndScheduleReminders();
+  } catch (error) {
+    console.error(`⛔️ Error during task execution: ${error.message}`);
+  }
+});
+
+// 5分ごとに実行するスケジュール
+schedule.scheduleJob(FIVE_MINUTE_SCHEDULE, function() {
+  try {
+    cleanUpVideoData();
   } catch (error) {
     console.error(`⛔️ Error during task execution: ${error.message}`);
   }

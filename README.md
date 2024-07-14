@@ -30,6 +30,7 @@
   - **`/upcoming`コマンド**: 直近の配信予定の動画情報を表示します。
   - **`/reminderlist`コマンド**: 登録されているリマインダーのリストを表示します。
 - **リマインダー通知**: 絵文字リアクションを使用して、配信5分前にリマインダー通知を送信します。
+- **データベースの自動クリーンアップ**: 適切なステータスに遷移できなくなった動画データを自動的に削除します。
 - **データベース操作（管理者向け）**: 管理者はDiscord DMを介してデータベースのメンテナンスを行うことができます。
   - **SQLクエリの送信**: 管理者はSQLクエリを送信してデータベースを操作できます。
   - **自動削除**: 実行結果は設定した時間後に自動的に削除されます。
@@ -80,6 +81,7 @@
     │   ├── update.js
     │   └── updateConfig.json
     ├── tasks
+    │   ├── cleanUpVideoData.js
     │   ├── reminderScheduler.js
     │   └── youtubeFeed.js
     ├── utils
@@ -98,7 +100,6 @@
 このプロジェクトには `.env.example` ファイルが含まれており、これを参考にして `.env` ファイルを作成してください。
 
 ### 環境変数の一覧
-
 
 このプロジェクトには `.env.example` ファイルが含まれており、これを参考にして `.env` ファイルを作成してください。
 
@@ -122,9 +123,7 @@
 | REMINDER_RECHECK_INTERVAL   | リマインダー再検索の間隔（分）              |
 | MESSAGE_DELETE_TIMEOUT      | DM自動削除の間隔（秒）                      |
 
-
 Fly.ioやHerokuなどのサービスを使用する場合は、接続文字列として`DATABASE_URL`を使用してください。
-
 
 ## セットアップ
 
@@ -175,7 +174,6 @@ Fly.ioやHerokuなどのサービスを使用する場合は、接続文字列�
 2. Discordアプリケーションで対象のサーバー名を右クリックし、「サーバーIDをコピー」を選択します。
 4. コピーしたIDを `.env` ファイルの `GUILD_ID` に設定します。
 
-
 ### Discordチャンネルのwebhook URLの取得
 
 1. Discordチャンネルを右クリックし、チャンネルの編集をクリックします。
@@ -204,8 +202,6 @@ Fly.ioやHerokuなどのサービスを使用する場合は、接続文字列�
 
 #### 4. dbConfig.js の設定
 データベース接続の設定は `dbConfig.js` ファイルで行います。サンプルファイルとして `dbConfig.example.js` が含まれているので、環境に合わせて設定を変更し、`dbConfig.js` として保存してください。
-
-
 
 ### データベース設計
 
@@ -320,7 +316,6 @@ npm install
 node index.js
 ```
 
-
 ### Discordスラッシュコマンドの登録
 
 スラッシュコマンドを登録するには、以下のコマンドを実行します。
@@ -357,7 +352,6 @@ node src/slashCommand/showSlashCommands.js
   node src/slashCommand/delete.js <commandId>
   ```
 
-
 ### 利用方法
 
 #### リマインダーの登録
@@ -379,13 +373,18 @@ node src/slashCommand/showSlashCommands.js
 - **reminderlistコマンド**
   - Discord Botが参加しているチャンネルで `/reminderlist` コマンドを実行すると、登録した有効なリマインダーが表示されます。
 
-
-
 ## 管理者向け機能
 
-### データベースの簡易メンテナンス
+### データベースの自動クリーンアップ
 
 ライブ配信予定の動画が削除や非公開化された場合やライブ配信中に限定公開になった場合など、適切なステータス遷移が行われないことがあります。この状況はスラッシュコマンドの`/live`や`/upcoming`の結果に影響する可能性があります。
+
+このため、定期的なメンテナンスタスクの一部として`cleanUpVideoData.js`は5分ごとに以下の操作を実行します。これにより、`video_data` テーブルが最新のエントリのみを保持し、データベースのパフォーマンスと精度が向上します。
+
+- `upcoming` ステータスの動画で、`scheduled_start_time`が13時間以上経過したものを削除します。
+- `live` ステータスの動画で、`actual_start_time`が13時間以上経過したものを削除します。
+
+### Discord BotとのDMによるメンテナンス
 
 環境変数に管理者のユーザーIDを`ADMIN_USER_ID`として設定したユーザーは、Discord BotとのDMを介してデータベースのメンテナンスを行うことができます。以下に例を示します。
 
@@ -418,7 +417,6 @@ node src/slashCommand/showSlashCommands.js
 
 チャンネル追加時には1チャンネル直近5件のデータを取得します。そのため一度に大量のチャンネルを追加すると通知が大量に発生する可能性があります。その結果Discordのメッセージ制限に抵触することがあります。この点を考慮して、チャンネル情報の追加は慎重に実施してください。
 
-
 ## ライセンス
 
 このプロジェクトは [MIT license](LICENSE) の下で公開されています。
@@ -438,7 +436,6 @@ node src/slashCommand/showSlashCommands.js
 9. [NOTES](#notes)
 10. [License](#license)
 
-
 ## Overview.
 This project uses a Discord bot to notify you of live YouTube feeds and videos. It monitors the RSS feed of a given channel and sends notifications to the Discord channel when a new video is posted or a live stream is launched.
 
@@ -454,6 +451,7 @@ This project uses a Discord bot to notify you of live YouTube feeds and videos. 
   - **`/upcoming`command**: Displays information on the most recently scheduled videos.
   - **`/reminderlist`command**: Displays a list of registered reminders.
 - **Reminder notification**: Sends a reminder notification 5 minutes before delivery using an emoji reaction.
+- **Automatic database cleanup**: Automatically delete video data that can no longer be transitioned to the appropriate status.
 - **Database manipulation (for administrators)**: allows administrators to perform database maintenance via Discord DM.
   - **Send SQL Query**: Administrators can manipulate the database by sending SQL queries.
   - **Auto-delete**: Execution results are automatically deleted after a set time.
@@ -504,6 +502,7 @@ Before running this project, you will need the following
     │   ├── update.js
     │   └── updateConfig.json
     ├── tasks
+    │   ├── cleanUpVideoData.js
     │   ├── reminderScheduler.js
     │   └── youtubeFeed.js
     ├── utils
@@ -542,7 +541,6 @@ This project contains a `.env.example` file, which can be used as a reference to
 | REMINDER_SEARCH_INTERVAL    | Reminder search interval (minutes)                                     |
 | REMINDER_RECHECK_INTERVAL   | Reminder re-search interval (minutes)                                  |
 | MESSAGE_DELETE_TIMEOUT      | Interval for automatic DM deletion (seconds)                           |
-
 
 If you use a service such as Fly.io or Heroku, use `DATABASE_URL` as the connection string.
 
@@ -737,7 +735,6 @@ Start the application with the following command
 node index.js
 ```
 
-
 ### Discord slash command registration
 
 To register the slash command, execute the following command
@@ -774,7 +771,6 @@ node src/slashCommand/showSlashCommands.js
   node src/slashCommand/delete.js <commandId>
   ```
 
-
 ## How to use
 
 #### Subscribe to Reminders
@@ -796,12 +792,18 @@ node src/slashCommand/showSlashCommands.js
 - **reminderlist command**
   - Running the `/reminderlist` command on a channel in which the Discord Bot is participating will show you the valid reminders you have registered.
 
-
 ## Functions for administrators
 
-### Quick maintenance of databases
+### Automatic Database Cleanup
 
-Proper status transitions may not occur when a video scheduled to be live-streamed is deleted or made private, or when a video becomes limited public during a live-streaming session. This situation may affect the result of the `/live` or `/upcoming` slash command.
+Proper status transitions may not occur when a video scheduled to be live-streamed is deleted or made private, or when a video becomes limited public during a live-streaming session. This situation may affect the results of the `/live` or `/upcoming` slash command.
+
+For this reason, as part of its regular maintenance task, `cleanUpVideoData.js` performs the following operation every 5 minutes. This will ensure that the `video_data` table retains only the most recent entries, improving database performance and accuracy.
+
+- Delete videos with `upcoming` status that have a `scheduled_start_time` of 13 hours or more.
+- Delete videos with `live` status that have an `actual_start_time` of 13 hours or more.
+
+### Maintenance by DM with Discord Bot
 
 Users who set the administrator's user ID as `ADMIN_USER_ID` in the environment variable can perform database maintenance via DM with the Discord Bot. An example is shown below.
 
