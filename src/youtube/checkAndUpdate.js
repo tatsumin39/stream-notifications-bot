@@ -17,7 +17,7 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
     if (live == 'none' || live == 'upcoming' || live == 'live') {
       const apiVideoInfo = await fetchVideoInfo(video_id);
       if (!apiVideoInfo) {
-        console.log(`ビデオ情報が見つかりませんでした - ビデオID: ${video_id}`);
+        console.log(`⛔️ ビデオ情報が見つかりませんでした - ビデオID: ${video_id}`);
         return;
       }
 
@@ -29,31 +29,31 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
 
       if (existingData.live != apiVideoInfo.liveBroadcastContent) {
         description = generateDescriptionText(apiVideoInfo.liveBroadcastContent, apiVideoInfo.actual_start_time, apiVideoInfo.duration);
-        console.log(`アップデートチェック：Live状態が${existingData.live}から${apiVideoInfo.liveBroadcastContent}に変更されました。`);
+        console.log(`✅ アップデートチェック：Live状態が${existingData.live}から${apiVideoInfo.liveBroadcastContent}に変更されました。`);
         isChanged = true;
 
       } else if (apiVideoInfo.liveBroadcastContent == 'upcoming' && dbscheduled_start_time !== apischeduled_start_time) {
         description = generateDescriptionText(apiVideoInfo.liveBroadcastContent, apiVideoInfo.actual_start_time, apiVideoInfo.duration, `配信予定が${formatDate(apiVideoInfo.scheduled_start_time, 'MM/DD HH:mm')}に変更されました。`);
-        console.log(`アップデートチェック：配信予定が${dbscheduled_start_time}から${apischeduled_start_time}に変更されました。`);
+        console.log(`✅ アップデートチェック：配信予定が${dbscheduled_start_time}から${apischeduled_start_time}に変更されました。`);
         isChanged = true;
 
         try {
           await handleScheduleChange(video_id, apiVideoInfo.scheduled_start_time);
         } catch (error) {
-          console.error(`配信予定時刻の変更に伴うリマインダー更新処理中にエラーが発生しました: ${error.message}`);
+          console.error(`⛔️ 配信予定時刻の変更に伴うリマインダー更新処理中にエラーが発生しました: ${error.message}`);
         }
       } else if (existingData.title !== apiVideoInfo.title) {
         if (apiVideoInfo.liveBroadcastContent === 'live') {
           description = generateDescriptionText(apiVideoInfo.liveBroadcastContent, apiVideoInfo.actual_start_time, apiVideoInfo.duration, `配信中タイトルが${apiVideoInfo.title}に更新されました。`);
-          console.log(`アップデートチェック：配信中タイトルが${existingData.title}から、${apiVideoInfo.title}に変更されました。`);
+          console.log(`✅ アップデートチェック：配信中タイトルが${existingData.title}から、${apiVideoInfo.title}に変更されました。`);
           isChanged = true;
         } else if (apiVideoInfo.liveBroadcastContent === 'upcoming') {
           description = generateDescriptionText(apiVideoInfo.liveBroadcastContent, apiVideoInfo.actual_start_time, apiVideoInfo.duration, `${formatDate(apiVideoInfo.scheduled_start_time, 'MM/DD HH:mm')}から配信予定のタイトルが以下に更新されました。\n${apiVideoInfo.title}`);
-          console.log(`アップデートチェック：${apischeduled_start_time}から配信予定タイトルが${existingData.title}から、${apiVideoInfo.title}に変更されました。`);
+          console.log(`✅ アップデートチェック：${apischeduled_start_time}から配信予定タイトルが${existingData.title}から、${apiVideoInfo.title}に変更されました。`);
           isChanged = true;
         } 
       } else {
-        console.log(`アップデートチェック：${apiVideoInfo.title} ビデオID ${video_id} は変更はありませんでした。`);
+        console.log(`✅ アップデートチェック：タイトル:${apiVideoInfo.title} Video_ID:${video_id}は変更はありませんでした。`);
       }
 
       const updatevideo_data = {
@@ -82,7 +82,7 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
       try {
         await updateVideoUpdatedTime(video_id, FeedUpdated);
       } catch (error) {
-        console.error('`updated` カラムの更新中にエラーが発生しました:', error.message);
+        console.error('⛔️ updatedカラムの更新中にエラーが発生しました:', error.message);
       }
     }
   }

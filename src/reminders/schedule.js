@@ -14,17 +14,17 @@ export async function scheduleReminder({ userId, messageContent, reminderId, rem
   schedule.scheduleJob(reminderTime, async () => {
     try {
       const user = await client.users.fetch(userId);
-      await user.send(`リマインダー: 5分後に配信が始まるよ！\n${messageContent}`);
-      console.log(`リマインダーを送信しました: ${user.username} - ${messageContent}`);
+      await user.send(`🔔 5分後に配信が始まるよ！\n${messageContent}`);
+      console.log(`📤 リマインダーを送信しました: ${user.username} - ${messageContent}`);
     } catch (error) {
-      console.error(`リマインダー送信に失敗しました: User ID ${userId} - ${error.message}`);
+      console.error(`⛔️ リマインダー送信に失敗しました:User ID:${userId} - ${error.message}`);
       return;
     }
 
     try {
       await updateReminderFlag(reminderId, 'executed');
     } catch (error) {
-      console.error(`リマインダー実行状態の更新に失敗しました: Reminder ID ${reminderId} - ${error.message}`);
+      console.error(`⛔️ リマインダー実行状態の更新に失敗しました: Reminder ID ${reminderId} - ${error.message}`);
     }
   });
 }

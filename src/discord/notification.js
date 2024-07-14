@@ -35,7 +35,7 @@ export async function sendDiscordNotification(data, channelIcon, DISCORD_WEBHOOK
     console.log(`📤  Discordにメッセージを送信しました。`);
     return true;
   } catch (error) {
-    console.error(`エラーが発生しました - エラーメッセージ: ${error.message}`);
+    console.error(`⛔️ エラーが発生しました - エラーメッセージ: ${error.message}`);
     return false;
   }
 }

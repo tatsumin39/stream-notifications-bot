@@ -85,7 +85,7 @@ export function parseMessageToQuery(messageText) {
 
     return { query, params };
   } catch (error) {
-    console.error(`Error parsing message to query: ${error.message}`);
+    console.error(`⛔️ Error parsing message to query: ${error.message}`);
     return { query: '', params: [] };
   }
 }

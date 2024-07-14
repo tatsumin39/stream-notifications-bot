@@ -15,10 +15,10 @@ import { fetchChannelInfo } from './api.js';
 export async function fetchAndStoreVideoData(DISCORD_CHANNEL_NAME, DISCORD_WEBHOOK_URL) {
   const channels = await getChannelsData(DISCORD_CHANNEL_NAME);
   for (const { channel_id, channel_name, channel_icon_url } of channels) {
-    console.log(`処理を開始: チャンネル名 ${channel_name}`);
+    // console.log(`▶️ 処理を開始: チャンネル名 ${channel_name}`);
     
     if (!(await isUrlAccessible(channel_icon_url))) {
-      console.log(`チャンネル名: ${channel_name} のアイコンURL ${channel_icon_url} が無効です。`);
+      console.log(`⛔️ チャンネル名: ${channel_name} のアイコンURL ${channel_icon_url} が無効です。`);
       await fetchChannelInfo(channel_id);
     }
     
@@ -26,12 +26,12 @@ export async function fetchAndStoreVideoData(DISCORD_CHANNEL_NAME, DISCORD_WEBHO
     try {
       const feedResponse = await fetch(feedUrl);
       if (!feedResponse.ok) {
-        console.error(`フィード取得エラー: チャンネル名 ${channel_name}、ステータスコード ${feedResponse.status}`);
+        console.error(`⛔️ フィード取得エラー: チャンネル名 ${channel_name}、ステータスコード ${feedResponse.status}`);
         continue;
       }
       const feedText = await feedResponse.text();
       if (!feedText) {
-        console.error(`フィードが空です: チャンネル名 ${channel_name}`);
+        console.error(`⛔️ フィードが空です: チャンネル名 ${channel_name}`);
         continue;
       }
       const parsedFeed = await xml2js.parseStringPromise(feedText, { explicitArray: false, mergeAttrs: true });
@@ -72,14 +72,14 @@ export async function fetchAndStoreVideoData(DISCORD_CHANNEL_NAME, DISCORD_WEBHO
             duration: convertedDuration
           };
 
+          await insertNewVideoData(newvideo_data);
+
           await sendDiscordNotification({
             channel: channel_name,
             title,
             video_id,
             description_text: generateDescriptionText(live, formattedactual_start_time || formattedscheduled_start_time, convertedDuration)
           }, channel_icon_url, DISCORD_WEBHOOK_URL);
-
-          await insertNewVideoData(newvideo_data);
 
         } else {
           const { live, scheduled_start_time, actual_start_time, duration: convertedDuration, video_id, title } = video_data;
@@ -88,7 +88,7 @@ export async function fetchAndStoreVideoData(DISCORD_CHANNEL_NAME, DISCORD_WEBHO
         }
       }
     } catch (error) {
-      console.error(`フィード取得中にエラー発生: チャンネル名 ${channel_name}、エラー ${error.message}`);
+      console.error(`⛔️ フィード取得中にエラー発生: チャンネル名 ${channel_name}、エラー ${error.message}`);
     }
   }
 }

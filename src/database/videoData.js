@@ -15,7 +15,7 @@ export async function checkVideoExists(videoId) {
     const { rows } = await pool.query(query, [videoId]);
     return rows[0].exists;
   } catch (error) {
-    console.error(`ビデオID ${videoId} の存在確認中にエラーが発生しました: ${error.message}`);
+    console.error(`⛔️ ビデオID ${videoId} の存在確認中にエラーが発生しました: ${error.message}`);
     return false;
   }
 }
@@ -41,7 +41,7 @@ export async function getVideoDataIfExists(videoId) {
     // データベースにビデオIDが存在しない場合、YouTube Data APIから情報を取得
     const videoInfo = await fetchVideoInfo(videoId);
     if (!videoInfo) {
-      console.log(`ビデオ情報が見つかりませんでした - ビデオID: ${videoId}`);
+      console.log(`⛔️ ビデオ情報が見つかりませんでした - ビデオID: ${videoId}`);
       return { exists: false };
     }
 
@@ -57,7 +57,6 @@ export async function getVideoDataIfExists(videoId) {
     };
   }
 }
-
 
 /**
  * 新しいビデオデータをデータベースに挿入します。
@@ -81,9 +80,9 @@ export async function insertNewVideoData({ video_id, title, published, updated, 
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
   try {
     await pool.query(query, params);
-    console.log(`🆕  新規データ挿入が成功しました。`);
+    console.log(`🆕  新規データ挿入が成功しました。 タイトル:${title} Video_ID:${video_id}`);
   } catch (error) {
-    console.error(`新規データ挿入中にエラーが発生しました: ${error.message}`);
+    console.error(`⛔️ 新規データ挿入中にエラーが発生しました: ${error.message}`);
   }
 }
 
@@ -111,12 +110,12 @@ export async function updateExistingVideoData({ video_id, title, published, upda
   try {
     const result = await pool.query(query, params);
     if (result.rowCount === 0) {
-      console.log(`更新対象が見つかりませんでした: ${video_id}`);
+      console.log(`⛔️ 更新対象が見つかりませんでした: ${video_id}`);
     } else {
-      console.log(`🆙  既存データの更新が成功しました。`);
+      console.log(`🆙  既存データの更新が成功しました。 タイトル:${title} Video_ID:${video_id}`);
     }
   } catch (error) {
-    console.error('既存データ更新中にエラーが発生しました:', error.message);
+    console.error('⛔️ 既存データ更新中にエラーが発生しました:', error.message);
   }
 }
 
@@ -133,7 +132,7 @@ export async function updateVideoUpdatedTime(video_id, updated) {
   try {
     const result = await pool.query(query, [updated, video_id]);
   } catch (error) {
-    console.error(`Error updating 'updated' time for video_id: ${video_id}:`, error);
+    console.error(`⛔️ Error updating 'updated' time for video_id: ${video_id}:`, error);
     throw error;
   }
 }

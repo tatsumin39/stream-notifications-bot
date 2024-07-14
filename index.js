@@ -26,7 +26,7 @@ schedule.scheduleJob(ONE_MINUTE_SCHEDULE, function() {
     startYoutubeFeed(process.env.DISCORD_LIVE_CHANNEL_NAME, process.env.DISCORD_LIVE_WEBHOOK_URL);
     searchAndScheduleReminders();
   } catch (error) {
-    console.error(`Error during task execution: ${error.message}`);
+    console.error(`⛔️ Error during task execution: ${error.message}`);
   }
 });
 
@@ -35,6 +35,6 @@ schedule.scheduleJob(TEN_MINUTE_SCHEDULE, function() {
   try {
     startYoutubeFeed(process.env.DISCORD_VIDEO_CHANNEL_NAME, process.env.DISCORD_VIDEO_WEBHOOK_URL);
   } catch (error) {
-    console.error(`Error during task execution: ${error.message}`);
+    console.error(`⛔️ Error during task execution: ${error.message}`);
   }
 });

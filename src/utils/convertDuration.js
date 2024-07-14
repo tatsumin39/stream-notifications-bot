@@ -5,7 +5,7 @@ export function convertDuration(duration) {
   }
   const matches = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
   if (!matches) {
-    console.error(`無効な持続時間形式 "${duration}" がconvertDuration関数に渡されました。`);
+    console.error(`⛔️ 無効な持続時間形式 "${duration}" がconvertDuration関数に渡されました。`);
     return "00:00:00";
   }
   const hours = (matches[1] ? parseInt(matches[1]) : 0);

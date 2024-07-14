@@ -27,7 +27,7 @@ async function checkReminderExists(userId, messageContent, reminderTime, videoId
  */
 export async function registerReminder(userId, messageContent, reminderTime, videoId) {
   if (await checkReminderExists(userId, messageContent, reminderTime, videoId)) {
-    console.log(`既に同じリマインダーが存在します。`);
+    console.log(`⛔️ 既に同じリマインダーが存在します。`);
     return 'exists';
   } else {
     const query = `
@@ -38,10 +38,10 @@ export async function registerReminder(userId, messageContent, reminderTime, vid
     try {
       const result = await pool.query(query, [userId, messageContent, reminderTime, false, false, videoId]);
       const reminderId = result.rows[0].id;
-      console.log(`リマインダーをデータベースに登録しました。${reminderId}`);
+      console.log(`✅ リマインダーをデータベースに登録しました。${reminderId}`);
       return reminderId;
     } catch (error) {
-      console.error('リマインダーのデータベース登録中にエラーが発生しました:', error);
+      console.error('⛔️ リマインダーのデータベース登録中にエラーが発生しました:', error);
       throw error;
     }
   }
@@ -63,12 +63,12 @@ export async function updateReminderFlag(reminderId, flagType) {
   try {
     const result = await pool.query(query, [reminderId]);
     if (result.rowCount > 0) {
-      console.log(`リマインダーID ${reminderId} の${flagColumn}フラグをtrueに更新しました。`);
+      console.log(`✅ リマインダーID:${reminderId} の${flagColumn}フラグをtrueに更新しました。`);
     } else {
-      console.log(`リマインダーID ${reminderId} の${flagColumn}フラグの更新に失敗しました。`);
+      console.log(`⛔️ リマインダーID:${reminderId} の${flagColumn}フラグの更新に失敗しました。`);
     }
   } catch (error) {
-    console.error(`リマインダーID ${reminderId} の${flagColumn}フラグ更新中にエラーが発生しました:`, error);
+    console.error(`⛔️ リマインダーID:${reminderId} の${flagColumn}フラグ更新中にエラーが発生しました:`, error);
     throw error;
   }
 }
@@ -93,7 +93,7 @@ export async function searchRemindersByvideoId(videoId) {
     const { rows } = await pool.query(query, params);
     return rows;
   } catch (error) {
-    console.error('リマインダーの検索中にエラーが発生しました:', error);
+    console.error('⛔️ リマインダーの検索中にエラーが発生しました:', error);
     throw error;
   }
 }
@@ -135,7 +135,7 @@ export async function searchReminders({ scheduled = null, executed = false, user
     const { rows } = await pool.query(query, params);
     return rows;
   } catch (error) {
-    console.error('Error searching reminders:', error);
+    console.error('⛔️ Error searching reminders:', error);
     throw error;
   }
 }
@@ -160,9 +160,9 @@ export async function updateReminderTime(reminderId, newScheduledTimeString, upd
   `;
   try {
       await pool.query(query, [reminderId, newReminderTime, updatedMessageContent]);
-      console.log(`リマインダーの通知時刻とメッセージを更新しました: Reminder ID ${reminderId}`);
+      console.log(`✅ リマインダーの通知時刻とメッセージを更新しました: Reminder ID:${reminderId}`);
   } catch (error) {
-      console.error(`リマインダーの通知時刻とメッセージの更新に失敗しました: Reminder ID ${reminderId} - ${error}`);
+      console.error(`⛔️ リマインダーの通知時刻とメッセージの更新に失敗しました: Reminder ID:${reminderId} - ${error}`);
       throw error;
   }
 }

@@ -6,7 +6,7 @@ export const isUrlAccessible = async (url) => {
     await axios.get(url);
     return true;
   } catch (error) {
-    console.error(`URLがアクセスできませんでした - エラーメッセージ: ${error.message}`);
+    console.error(`⛔️ URLがアクセスできませんでした - エラーメッセージ: ${error.message}`);
     return false;
   }
 };

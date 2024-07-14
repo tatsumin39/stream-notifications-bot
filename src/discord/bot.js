@@ -32,7 +32,7 @@ const client = new Client({
  * Discord Botの初期化とイベントハンドラの設定を行います。
  */
 client.once('ready', async () => {
-  console.log(`Logged in as ${client.user.tag}!`);
+  console.log(`✅ Logged in as ${client.user.tag}!`);
 
   try {
     // ボット起動時に10分以内のリマインダーを再スケジュールする
@@ -48,14 +48,14 @@ client.once('ready', async () => {
       const user = await client.users.fetch(reminder.user_id);
 
       if (!user) {
-        console.error(`ユーザーが見つかりません: ${reminder.user_id}`);
+        console.error(`⛔️ ユーザーが見つかりません: ${reminder.user_id}`);
         continue; // 次のリマインダーへ
       }
 
       const reminderTime = new Date(reminder.reminder_time);
       const now = new Date();
       if (reminderTime <= now) {
-        console.log(`スキップ（過去の時刻）: ${reminderTime}`);
+        console.log(`⛔️ スキップ（過去の時刻）: ${reminderTime}`);
         continue; // 過去の時刻の場合はスキップ
       }
 
@@ -66,10 +66,10 @@ client.once('ready', async () => {
         reminderTime
       };
       await scheduleReminder(reminderData);
-      console.log(`リマインダーを再スケジュールしました: ${reminder.id}`);
+      console.log(`🔄 リマインダーID:${reminder.id}を再スケジュールしました。`);
     }
   } catch (error) {
-    console.error('リマインダーの再スケジュール中にエラーが発生しました:', error);
+    console.error('⛔️ リマインダーの再スケジュール中にエラーが発生しました:', error);
   }
 });
 
@@ -82,7 +82,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     try {
       await reaction.fetch();
     } catch (error) {
-      console.error('Reaction fetch failed:', error);
+      console.error('⛔️ Reaction fetch failed:', error);
       return;
     }
   }
@@ -93,10 +93,10 @@ client.on('messageReactionAdd', async (reaction, user) => {
     try {
       await handleSetReminder(user, reaction.message.content);
     } catch (error) {
-      console.error('リマインダー設定中にエラーが発生しました:', error);
+      console.error('⛔️ リマインダー設定中にエラーが発生しました:', error);
     }
   }
-  console.log(`Reaction received: ${reaction.emoji.name} from ${user.username} ${user.id} on message: ${reaction.message.content}`);
+  console.log(`✅ Reaction received: ${reaction.emoji.name} from ${user.username} ${user.id} on message: ${reaction.message.content}`);
 });
 
 /**
@@ -143,13 +143,13 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.reply({ content: `現在登録されている有効なリマインダーは${reminders.length}件です。`, ephemeral: true });
         for (const reminder of reminders) {
           const formattedReminderTime = formatDate(reminder.reminder_time, 'YYYY/MM/DD HH:mm');
-          const reminderMessage = `⏰ リマインダーID: ${reminder.id}\nリマインダー時刻: ${formattedReminderTime}\n${reminder.message_content}`;
+          const reminderMessage = `⏰ リマインダーID:${reminder.id}\nリマインダー時刻:${formattedReminderTime}\n${reminder.message_content}`;
           await interaction.followUp({ content: reminderMessage, ephemeral: true });
         }
       }
     }
   } catch (error) {
-    console.error(`スラッシュコマンド処理中にエラーが発生しました: ${error}`);
+    console.error(`⛔️ スラッシュコマンド処理中にエラーが発生しました: ${error}`);
     await interaction.reply({ content: "コマンドの処理中にエラーが発生しました。", ephemeral: true });
   }
 });
@@ -176,7 +176,7 @@ client.on('messageCreate', async (message) => {
       setTimeout(() => resultMessage.delete().catch(console.error), MESSAGE_DELETE_TIMEOUT);
     }
   } catch (error) {
-    console.error(`クエリの実行中にエラーが発生しました: ${error}`);
+    console.error(`⛔️ クエリの実行中にエラーが発生しました: ${error}`);
     const errorMessage = await message.author.send(`エラーが発生しました: ${error.message}`);
     setTimeout(() => errorMessage.delete().catch(console.error), MESSAGE_DELETE_TIMEOUT);
   }

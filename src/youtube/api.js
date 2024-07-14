@@ -23,20 +23,20 @@ export async function fetchChannelInfo(channel_id) {
     console.log(`🤖  YouTube.Channels.list API実行: ${channel_id}`);
     
     if (!response || !response.data || !response.data.items || response.data.items.length === 0) {
-      console.log(`チャンネルID ${channel_id} の情報が見つかりませんでした。`);
+      console.log(`⛔️ チャンネルID ${channel_id} の情報が見つかりませんでした。`);
       return null;
     }
 
     const channelSnippet = response.data.items[0].snippet;
     if (channelSnippet.thumbnails && channelSnippet.thumbnails.default) {
       const thumbnailUrl = channelSnippet.thumbnails.default.url;
-      console.log(`チャンネル名: ${channelSnippet.title} の新しいアイコンURLは ${thumbnailUrl} です。`);
+      console.log(`🆙 チャンネル名: ${channelSnippet.title} の新しいアイコンURLは ${thumbnailUrl} です。`);
       await updateChannelIcon(thumbnailUrl, channel_id);
     } else {
-      console.log(`チャンネルID ${channel_id} のサムネイルが見つかりません。`);
+      console.log(`⛔️ チャンネルID ${channel_id} のサムネイルが見つかりません。`);
     }
   } catch (error) {
-    console.error(`API呼び出し中にエラーが発生しました: ${error.message}`);
+    console.error(`⛔️ API呼び出し中にエラーが発生しました: ${error.message}`);
     return null;
   }
 }
@@ -55,7 +55,7 @@ export async function fetchVideoInfo(videoId) {
     }
 
     const apiVideoInfo = response.data.items[0];
-    console.log(`🤖  YouTube.Videos.list API実行: ${apiVideoInfo.snippet.title} videoId: ${videoId}`);
+    console.log(`🤖  YouTube.Videos.list API実行: タイトル:${apiVideoInfo.snippet.title} Video_ID:${videoId}`);
 
     let liveBroadcastContent = 'none';
     if (!apiVideoInfo.liveStreamingDetails) {
@@ -78,7 +78,7 @@ export async function fetchVideoInfo(videoId) {
       duration: apiVideoInfo.contentDetails?.duration ? convertDuration(apiVideoInfo.contentDetails.duration) : "00:00:00"
     };
   } catch (error) {
-    console.error(`fetchVideoInfoでエラーが発生しました - ビデオID: ${videoId}, エラーメッセージ: ${error.message}`);
+    console.error(`⛔️ fetchVideoInfoでエラーが発生しました - ビデオID: ${videoId}, エラーメッセージ: ${error.message}`);
     return {
       videoId: videoId,
       liveBroadcastContent: 'none',

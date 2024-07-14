@@ -9,16 +9,14 @@ export async function startYoutubeFeed(DISCORD_CHANNEL_NAME, DISCORD_WEBHOOK_URL
 
   try {
       await fetchAndStoreVideoData(DISCORD_CHANNEL_NAME, DISCORD_WEBHOOK_URL);
-      console.log('YouTubeデータの取得と保存が完了しました。');
   } catch (error) {
-      console.error('YouTubeデータの取得中にエラーが発生しました:', error.message);
+      console.error('⛔️ YouTubeデータの取得中にエラーが発生しました:', error.message);
   }
 
   const endTimestamp = new Date(); // 終了時刻のタイムスタンプ
-  console.log(`${endTimestamp.toLocaleString()}: fetchAndStoreVideoData終了！`);
 
   const elapsedMilliseconds = endTimestamp - startTimestamp;
   const elapsedSeconds = elapsedMilliseconds / 1000;
 
-  console.log(`YouTubeデータ検索と通知実行時間: ${elapsedSeconds}秒`);
+  console.log(`YouTubeデータ検索と通知実行時間 ${DISCORD_CHANNEL_NAME}: ${elapsedSeconds}秒`);
 }

@@ -16,14 +16,14 @@ export async function updateChannelIcon(thumbnailUrl, channel_id) {
       [thumbnailUrl, channel_id]
     );
     if (result.rowCount > 0) {
-      console.log(`チャンネルID ${channel_id} のアイコンが更新されました。`);
+      console.log(`✅ チャンネルID ${channel_id} のアイコンが更新されました。`);
       return true;
     } else {
-      console.log(`チャンネルID ${channel_id} のアイコン更新に失敗しました。`);
+      console.log(`⛔️ チャンネルID ${channel_id} のアイコン更新に失敗しました。`);
       return false;
     }
   } catch (error) {
-    console.error(`チャンネルID ${channel_id} のアイコン更新中にエラーが発生しました: ${error.message}`);
+    console.error(`⛔️ チャンネルID ${channel_id} のアイコン更新中にエラーが発生しました: ${error.message}`);
     return false;
   }
 }

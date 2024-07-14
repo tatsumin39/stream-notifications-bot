@@ -16,7 +16,7 @@ async function processReminder(reminder) {
   };
   await scheduleReminder(reminderData);  // リマインダーをスケジュールに登録します。
   await updateReminderFlag(reminder.id, 'scheduled'); // リマインダーの登録状態を「成功」に更新します。
-  console.log(`リマインダーID ${reminder.id} をJob登録しました。`);
+  console.log(`✅ リマインダーID ${reminder.id} をJob登録しました。`);
 }
 
 /**
@@ -31,11 +31,10 @@ export async function searchAndScheduleReminders() {
           await processReminder(reminder);
       }
   } catch (error) {
-    console.error('Failed to schedule reminders:', error);
+    console.error('⛔️ Failed to schedule reminders:', error);
   }
 
   const endTimestamp = new Date(); // 終了時刻のタイムスタンプ
-  console.log(`${endTimestamp.toLocaleString()}: searchAndScheduleReminders終了！`);
 
   const elapsedMilliseconds = endTimestamp - startTimestamp;
   const elapsedSeconds = elapsedMilliseconds / 1000;

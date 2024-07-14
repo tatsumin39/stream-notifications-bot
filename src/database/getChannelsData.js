@@ -19,7 +19,7 @@ export const getChannelsData = async (DISCORD_CHANNEL_NAME) => {
     const { rows } = await pool.query(query, params);
     return rows;
   } catch (error) {
-    console.error(`Error getting channels data: ${error.message}`);
+    console.error(`⛔️ Error getting channels data: ${error.message}`);
     return [];
   }
 };

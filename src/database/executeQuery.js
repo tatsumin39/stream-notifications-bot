@@ -30,11 +30,11 @@ export async function executeQuery(query, params = []) {
         }
       default:
         // 未知のクエリタイプ
-        console.error('未知のクエリタイプです。:', command);
+        console.error('⛔️ 未知のクエリタイプです。:', command);
         return [];
     }
   } catch (error) {
-    console.error(`executeQuery関数実行中にエラーが発生しました: '${error}`);
+    console.error(`⛔️ executeQuery関数実行中にエラーが発生しました: '${error}`);
     return []; // エラーが発生した場合は空の配列または0を返す
   }
 }
