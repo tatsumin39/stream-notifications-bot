@@ -21,6 +21,11 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
         return;
       }
 
+      if (apiVideoInfo.liveBroadcastContent === 'none') {
+        console.log(`⛔️ 無効なビデオステータスのため処理を中断しました - ビデオID: ${video_id}`);
+        return;
+      }
+
       let description;
       let isChanged = false;
 

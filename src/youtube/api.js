@@ -60,12 +60,16 @@ export async function fetchVideoInfo(videoId) {
     let liveBroadcastContent = 'none';
     if (!apiVideoInfo.liveStreamingDetails) {
       liveBroadcastContent = 'video';
-    }else if (apiVideoInfo.snippet.liveBroadcastContent === 'upcoming') {
+    } else if (apiVideoInfo.snippet.liveBroadcastContent === 'upcoming') {
       liveBroadcastContent = 'upcoming';
     } else if (apiVideoInfo.snippet.liveBroadcastContent === 'live') {
       liveBroadcastContent = 'live';
-    }else if (apiVideoInfo.snippet.liveBroadcastContent === 'none' && apiVideoInfo.liveStreamingDetails.actualEndTime) {
+    } else if (apiVideoInfo.snippet.liveBroadcastContent === 'none' && apiVideoInfo.liveStreamingDetails.actualEndTime) {
       liveBroadcastContent = 'archive';
+    }
+
+    if (liveBroadcastContent === 'none') {
+      throw new Error('ビデオのステータスが不明です。');
     }
 
     return {
@@ -79,14 +83,6 @@ export async function fetchVideoInfo(videoId) {
     };
   } catch (error) {
     console.error(`⛔️ fetchVideoInfoでエラーが発生しました - ビデオID: ${videoId}, エラーメッセージ: ${error.message}`);
-    return {
-      videoId: videoId,
-      liveBroadcastContent: 'none',
-      title: false,
-      scheduled_start_time: null,
-      actual_start_time: null,
-      actualEndTime: null,
-      duration: null
-    };
+    return null; // 不完全なデータの場合は null を返す
   }
 }

@@ -38,25 +38,32 @@ export async function getVideoDataIfExists(videoId) {
     const video_data = rows[0];
     return { exists: true, ...video_data };
   } else {
-    // データベースにビデオIDが存在しない場合、YouTube Data APIから情報を取得
-    const videoInfo = await fetchVideoInfo(videoId);
-    if (!videoInfo) {
-      console.log(`⛔️ ビデオ情報が見つかりませんでした - ビデオID: ${videoId}`);
+    try {
+      // データベースにビデオIDが存在しない場合、YouTube Data APIから情報を取得
+      const videoInfo = await fetchVideoInfo(videoId);
+
+      if (!videoInfo) {
+        console.log(`⛔️ ビデオ情報が見つかりませんでした - ビデオID: ${videoId}`);
+        return { exists: false };
+      }
+
+      // APIから取得した情報を返す
+      return {
+        exists: false,
+        video_id: videoInfo.videoId,
+        live: videoInfo.liveBroadcastContent,
+        scheduled_start_time: videoInfo.scheduled_start_time,
+        actual_start_time: videoInfo.actual_start_time,
+        title: videoInfo.title,
+        duration: videoInfo.duration
+      };
+    } catch (error) {
+      console.error(`Error fetching video info for video ID: ${videoId}`, error.message);
       return { exists: false };
     }
-
-    // APIから取得した情報を返す
-    return {
-      exists: false,
-      video_id: videoInfo.videoId,
-      live: videoInfo.liveBroadcastContent,
-      scheduled_start_time: videoInfo.scheduled_start_time,
-      actual_start_time: videoInfo.actual_start_time,
-      title: videoInfo.title,
-      duration: (videoInfo.duration)
-    };
   }
 }
+
 
 /**
  * 新しいビデオデータをデータベースに挿入します。
@@ -126,7 +133,6 @@ export async function updateExistingVideoData({ video_id, title, published, upda
  * @returns {Promise<void>} - 更新成功時にはundefinedを返し、エラー発生時にはエラーをスローします。
  */
 export async function updateVideoUpdatedTime(video_id, updated) {
-  // console.log(`▶️  :updateVideoUpdatedTime ${video_id} ${updated}`);
   // SQLクエリを使用して、特定のvideo_idに対する`updated`カラムのみを更新
   const query = `UPDATE video_data SET updated = $1 WHERE video_id = $2`;
   try {
