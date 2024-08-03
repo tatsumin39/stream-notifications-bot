@@ -34,7 +34,7 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
 
       if (existingData.status != apiVideoInfo.liveBroadcastContent) {
         description = generateDescriptionText(apiVideoInfo.liveBroadcastContent, apiVideoInfo.actual_start_time, apiVideoInfo.duration);
-        console.log(`✅ アップデートチェック：Live状態が${existingData.live}から${apiVideoInfo.liveBroadcastContent}に変更されました。`);
+        console.log(`✅ アップデートチェック：ステータスが${existingData.status}から${apiVideoInfo.liveBroadcastContent}に変更されました。`);
         isChanged = true;
 
       } else if (apiVideoInfo.liveBroadcastContent == 'upcoming' && dbscheduled_start_time !== apischeduled_start_time) {
