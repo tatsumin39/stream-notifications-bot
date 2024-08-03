@@ -237,6 +237,7 @@ YouTube からのビデオ情報とその配信ステータスを管理します
 | status               | VARCHAR(50)              | 動画のライブ配信ステータス        |
 | scheduled_start_time | TIMESTAMP WITH TIME ZONE | 配信予定開始時刻                  |
 | actual_start_time    | TIMESTAMP WITH TIME ZONE | 実際の配信開始時刻                |
+| actual_end_time      | TIMESTAMP WITH TIME ZONE | 配信終了時刻                    |
 | duration             | VARCHAR(50)              | 動画の長さ（HH:MM:SS 形式）       |
 
 #### 3. `reminder` テーブル
@@ -274,6 +275,7 @@ CREATE TABLE video_data (
     status VARCHAR(50),
     scheduled_start_time TIMESTAMP WITH TIME ZONE,
     actual_start_time TIMESTAMP WITH TIME ZONE,
+    actual_end_time TIMESTAMP WITH TIME ZONE,
     duration VARCHAR(50)
 );
 
@@ -666,6 +668,7 @@ Manage video information from YouTube and its distribution status.
 | status               | VARCHAR(50)              | Live streaming status of the video                   |
 | scheduled_start_time | TIMESTAMP WITH TIME ZONE | Scheduled start time of streaming                    |
 | actual_start_time    | TIMESTAMP WITH TIME ZONE | Actual start time of distribution                    |
+| actual_end_time      | TIMESTAMP WITH TIME ZONE | Actual end time of distribution                      |
 | duration             | VARCHAR(50)              | Video duration (HH:MM:SS format)                     |
 
 #### 3. `reminder` table
@@ -703,6 +706,7 @@ CREATE TABLE video_data (
     status VARCHAR(50),
     scheduled_start_time TIMESTAMP WITH TIME ZONE,
     actual_start_time TIMESTAMP WITH TIME ZONE,
+    actual_end_time TIMESTAMP WITH TIME ZONE,
     duration VARCHAR(50)
 );
 

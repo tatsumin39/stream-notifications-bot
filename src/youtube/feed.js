@@ -77,6 +77,7 @@ export async function fetchAndStoreVideoData(
             status,
             scheduled_start_time,
             actual_start_time,
+            actual_end_time,
             duration: convertedDuration,
             video_id,
             title,
@@ -88,6 +89,9 @@ export async function fetchAndStoreVideoData(
           let formattedactual_start_time = actual_start_time
             ? formatDate(actual_start_time)
             : null;
+          let formattedactual_end_time = actual_end_time
+          ? formatDate(actual_end_time)
+          : null;
 
           const newvideo_data = {
             video_id: FeedVideoId,
@@ -98,6 +102,7 @@ export async function fetchAndStoreVideoData(
             status,
             scheduledStartTime: scheduled_start_time,
             actual_start_time: actual_start_time,
+            actual_end_time: actual_end_time,
             duration: convertedDuration,
           };
 
@@ -111,6 +116,7 @@ export async function fetchAndStoreVideoData(
               description_text: generateDescriptionText(
                 status,
                 formattedactual_start_time || formattedscheduled_start_time,
+                formattedactual_end_time || formattedactual_end_time,
                 convertedDuration
               ),
             },

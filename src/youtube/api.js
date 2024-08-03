@@ -78,7 +78,7 @@ export async function fetchVideoInfo(videoId) {
       title: apiVideoInfo.snippet.title,
       scheduled_start_time: apiVideoInfo.liveStreamingDetails?.scheduledStartTime || null,
       actual_start_time: apiVideoInfo.liveStreamingDetails?.actualStartTime || null,
-      actualEndTime: apiVideoInfo.liveStreamingDetails?.actualEndTime || null,
+      actual_end_time: apiVideoInfo.liveStreamingDetails?.actualEndTime || null,
       duration: apiVideoInfo.contentDetails?.duration ? convertDuration(apiVideoInfo.contentDetails.duration) : "00:00:00"
     };
   } catch (error) {

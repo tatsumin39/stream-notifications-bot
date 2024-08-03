@@ -7,14 +7,14 @@ import { formatDate } from '../utils/formatDate.js';
 
 // ビデオ情報の更新を確認し、Discordに投稿するロジック
 export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_WEBHOOK_URL) {
-  const [title, FeedPublished, FeedUpdated, video_id, channel_name, live, scheduled_start_time, actual_start_time] = data;
+  const [title, FeedPublished, FeedUpdated, video_id, channel_name, status, scheduled_start_time, actual_start_time] = data;
 
   const existingData = await getVideoDataIfExists(video_id);
   const rssUpdatedDate = new Date(FeedUpdated).getTime();
   const dbUpdatedDate = new Date(existingData.updated).getTime();
 
   if (rssUpdatedDate !== dbUpdatedDate) {
-    if (live == 'none' || live == 'upcoming' || live == 'live') {
+    if (status == 'none' || status == 'upcoming' || status == 'live') {
       const apiVideoInfo = await fetchVideoInfo(video_id);
       if (!apiVideoInfo) {
         console.log(`⛔️ ビデオ情報が見つかりませんでした - ビデオID: ${video_id}`);
@@ -32,7 +32,7 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
       const dbscheduled_start_time = new Date(existingData.scheduled_start_time).getTime();
       const apischeduled_start_time = new Date(apiVideoInfo.scheduled_start_time).getTime();
 
-      if (existingData.live != apiVideoInfo.liveBroadcastContent) {
+      if (existingData.status != apiVideoInfo.liveBroadcastContent) {
         description = generateDescriptionText(apiVideoInfo.liveBroadcastContent, apiVideoInfo.actual_start_time, apiVideoInfo.duration);
         console.log(`✅ アップデートチェック：Live状態が${existingData.live}から${apiVideoInfo.liveBroadcastContent}に変更されました。`);
         isChanged = true;
@@ -67,7 +67,7 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
         published: FeedPublished,
         updated: FeedUpdated,
         channel: channel_name,
-        live: apiVideoInfo.liveBroadcastContent,
+        status: apiVideoInfo.liveBroadcastContent,
         scheduled_start_time: apiVideoInfo.scheduled_start_time,
         actual_start_time: apiVideoInfo.actual_start_time,
         duration: apiVideoInfo.duration
