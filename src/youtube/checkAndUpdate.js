@@ -70,6 +70,7 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
         status: apiVideoInfo.liveBroadcastContent,
         scheduled_start_time: apiVideoInfo.scheduled_start_time,
         actual_start_time: apiVideoInfo.actual_start_time,
+        actual_end_time: apiVideoInfo.actual_end_time,
         duration: apiVideoInfo.duration
       };
 

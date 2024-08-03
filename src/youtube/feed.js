@@ -83,15 +83,8 @@ export async function fetchAndStoreVideoData(
             title,
           } = video_data;
 
-          let formattedscheduled_start_time = scheduled_start_time
-            ? formatDate(scheduled_start_time)
-            : null;
-          let formattedactual_start_time = actual_start_time
-            ? formatDate(actual_start_time)
-            : null;
-          let formattedactual_end_time = actual_end_time
-          ? formatDate(actual_end_time)
-          : null;
+          let formattedscheduled_start_time = scheduled_start_time ? formatDate(scheduled_start_time) : null;
+          let formattedactual_start_time = actual_start_time ? formatDate(actual_start_time) : null;
 
           const newvideo_data = {
             video_id: FeedVideoId,
@@ -116,7 +109,6 @@ export async function fetchAndStoreVideoData(
               description_text: generateDescriptionText(
                 status,
                 formattedactual_start_time || formattedscheduled_start_time,
-                formattedactual_end_time || formattedactual_end_time,
                 convertedDuration
               ),
             },
@@ -127,7 +119,6 @@ export async function fetchAndStoreVideoData(
           const {
             status,
             scheduled_start_time,
-            actual_start_time,
             duration: convertedDuration,
             video_id,
             title,
