@@ -1,12 +1,12 @@
 [
   {
     "commandId": "<command-id>",
-    "name": "dev-live",
+    "name": "live",
     "description": "現在配信中の動画を表示します。"
   },
   {
     "commandId": "<command-id>",
-    "name": "dev-upcoming",
+    "name": "upcoming",
     "description": "配信開始予定の動画を表示します。",
     "options": [
       {
@@ -19,7 +19,7 @@
   },
   {
     "commandId": "<command-id>",
-    "name": "dev-reminderlist",
+    "name": "eminderlist",
     "description": "登録されているリマインダーを表示します。"
   }
 ]
