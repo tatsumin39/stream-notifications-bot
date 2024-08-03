@@ -1,5 +1,5 @@
-import pool from '../config/dbConfig.js'; 
-import { fetchVideoInfo } from '../youtube/api.js';
+import pool from "../config/dbConfig.js";
+import { fetchVideoInfo } from "../youtube/api.js";
 
 /**
  * 指定されたビデオIDがデータベースに存在するかどうかを確認します。
@@ -15,7 +15,9 @@ export async function checkVideoExists(videoId) {
     const { rows } = await pool.query(query, [videoId]);
     return rows[0].exists;
   } catch (error) {
-    console.error(`⛔️ ビデオID ${videoId} の存在確認中にエラーが発生しました: ${error.message}`);
+    console.error(
+      `⛔️ ビデオID ${videoId} の存在確認中にエラーが発生しました: ${error.message}`
+    );
     return false;
   }
 }
@@ -32,7 +34,7 @@ export async function getVideoDataIfExists(videoId) {
     WHERE video_id = $1;
   `;
   const { rows } = await pool.query(query, [videoId]);
-  
+
   if (rows.length > 0) {
     // データベースにビデオIDが存在する場合、そのレコードを返す
     const video_data = rows[0];
@@ -43,7 +45,9 @@ export async function getVideoDataIfExists(videoId) {
       const videoInfo = await fetchVideoInfo(videoId);
 
       if (!videoInfo) {
-        console.log(`⛔️ ビデオ情報が見つかりませんでした - ビデオID: ${videoId}`);
+        console.log(
+          `⛔️ ビデオ情報が見つかりませんでした - ビデオID: ${videoId}`
+        );
         return { exists: false };
       }
 
@@ -51,45 +55,61 @@ export async function getVideoDataIfExists(videoId) {
       return {
         exists: false,
         video_id: videoInfo.videoId,
-        live: videoInfo.liveBroadcastContent,
+        status: videoInfo.liveBroadcastContent,
         scheduled_start_time: videoInfo.scheduled_start_time,
         actual_start_time: videoInfo.actual_start_time,
         title: videoInfo.title,
-        duration: videoInfo.duration
+        duration: videoInfo.duration,
       };
     } catch (error) {
-      console.error(`Error fetching video info for video ID: ${videoId}`, error.message);
+      console.error(
+        `Error fetching video info for video ID: ${videoId}`,
+        error.message
+      );
       return { exists: false };
     }
   }
 }
-
 
 /**
  * 新しいビデオデータをデータベースに挿入します。
  * @param {Object} videoData - 挿入するビデオデータを含むオブジェクト。
  * @returns {Promise<void>} - 挿入成功時にはundefinedを返し、エラー発生時にはエラーをスローします。
  */
-export async function insertNewVideoData({ video_id, title, published, updated, channel, live, scheduledStartTime, actual_start_time, duration }) {
+export async function insertNewVideoData({
+  video_id,
+  title,
+  published,
+  updated,
+  channel,
+  status,
+  scheduledStartTime,
+  actual_start_time,
+  duration,
+}) {
   const params = [
     video_id,
     title,
     published,
     updated,
     channel,
-    live,
+    status,
     scheduledStartTime || null,
     actual_start_time || null,
-    duration || null
+    duration || null,
   ];
   const query = `
-  INSERT INTO video_data (video_id, title, published, updated, channel, live, scheduled_start_time, actual_start_time, duration)
+  INSERT INTO video_data (video_id, title, published, updated, channel, status, scheduled_start_time, actual_start_time, duration)
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
   try {
     await pool.query(query, params);
-    console.log(`🆕  新規データ挿入が成功しました。 タイトル:${title} Video_ID:${video_id}`);
+    console.log(
+      `🆕  新規データ挿入が成功しました。 タイトル:${title} Video_ID:${video_id}`
+    );
   } catch (error) {
-    console.error(`⛔️ 新規データ挿入中にエラーが発生しました: ${error.message}`);
+    console.error(
+      `⛔️ 新規データ挿入中にエラーが発生しました: ${error.message}`
+    );
   }
 }
 
@@ -98,10 +118,20 @@ export async function insertNewVideoData({ video_id, title, published, updated, 
  * @param {Object} videoData - 更新するビデオデータを含むオブジェクト。
  * @returns {Promise<void>} - 更新成功時にはundefinedを返し、エラー発生時にはエラーをスローします。
  */
-export async function updateExistingVideoData({ video_id, title, published, updated, channel, live, scheduled_start_time, actual_start_time, duration }) {
+export async function updateExistingVideoData({
+  video_id,
+  title,
+  published,
+  updated,
+  channel,
+  status,
+  scheduled_start_time,
+  actual_start_time,
+  duration,
+}) {
   const query = `
     UPDATE video_data
-    SET title = $2, published = $3::timestamp with time zone, updated = $4::timestamp with time zone, channel = $5, live = $6, scheduled_start_time = $7::timestamp with time zone, actual_start_time = $8::timestamp with time zone, duration = $9
+    SET title = $2, published = $3::timestamp with time zone, updated = $4::timestamp with time zone, channel = $5, status = $6, scheduled_start_time = $7::timestamp with time zone, actual_start_time = $8::timestamp with time zone, duration = $9
     WHERE video_id = $1`;
   const params = [
     video_id,
@@ -109,7 +139,7 @@ export async function updateExistingVideoData({ video_id, title, published, upda
     published,
     updated,
     channel,
-    live,
+    status,
     scheduled_start_time || null,
     actual_start_time || null,
     duration || null,
@@ -119,10 +149,12 @@ export async function updateExistingVideoData({ video_id, title, published, upda
     if (result.rowCount === 0) {
       console.log(`⛔️ 更新対象が見つかりませんでした: ${video_id}`);
     } else {
-      console.log(`🆙  既存データの更新が成功しました。 タイトル:${title} Video_ID:${video_id}`);
+      console.log(
+        `🆙  既存データの更新が成功しました。 タイトル:${title} Video_ID:${video_id}`
+      );
     }
   } catch (error) {
-    console.error('⛔️ 既存データ更新中にエラーが発生しました:', error.message);
+    console.error("⛔️ 既存データ更新中にエラーが発生しました:", error.message);
   }
 }
 
@@ -138,7 +170,10 @@ export async function updateVideoUpdatedTime(video_id, updated) {
   try {
     const result = await pool.query(query, [updated, video_id]);
   } catch (error) {
-    console.error(`⛔️ Error updating 'updated' time for video_id: ${video_id}:`, error);
+    console.error(
+      `⛔️ Error updating 'updated' time for video_id: ${video_id}:`,
+      error
+    );
     throw error;
   }
 }
@@ -148,9 +183,10 @@ export async function updateVideoUpdatedTime(video_id, updated) {
  * @returns {Promise<Array>} - 配信中のビデオデータを含む配列を返します。
  */
 export async function getLiveData() {
-    const query = "SELECT title, video_id FROM video_data WHERE live = 'live' ORDER BY actual_start_time ASC";
-    const { rows } = await pool.query(query);
-    return rows;
+  const query =
+    "SELECT title, video_id FROM video_data WHERE status = 'status' ORDER BY actual_start_time ASC";
+  const { rows } = await pool.query(query);
+  return rows;
 }
 
 /**
@@ -159,14 +195,14 @@ export async function getLiveData() {
  * @returns {Promise<Array>} - 配信予定のビデオデータを含む配列を返します。
  */
 export async function getUpcomingData(minutes = 15) {
-    const query = `
+  const query = `
         SELECT title, video_id, scheduled_start_time 
         FROM video_data 
-        WHERE live = 'upcoming' 
+        WHERE status = 'upcoming' 
         AND scheduled_start_time > NOW() 
         AND scheduled_start_time <= NOW() + INTERVAL '${minutes} minutes' 
         ORDER BY scheduled_start_time ASC
     `;
-    const { rows } = await pool.query(query);
-    return rows;
+  const { rows } = await pool.query(query);
+  return rows;
 }

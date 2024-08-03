@@ -1,31 +1,35 @@
 // ReadableStreamポリフィルを追加
-if (typeof ReadableStream === 'undefined') {
-  global.ReadableStream = require('web-streams-polyfill/ponyfill/es6').ReadableStream;
+if (typeof ReadableStream === "undefined") {
+  global.ReadableStream =
+    require("web-streams-polyfill/ponyfill/es6").ReadableStream;
 }
 
 // 環境変数の読み込み
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 // Discord Botを起動
-import './src/discord/bot.js';
+import "./src/discord/bot.js";
 
 // タスクのインポート
-import { startYoutubeFeed } from './src/tasks/youtubeFeed.js';
-import { searchAndScheduleReminders } from './src/tasks/reminderScheduler.js';
-import { cleanUpVideoData } from './src/tasks/cleanUpVideoData.js';
-import schedule from 'node-schedule';
+import { startYoutubeFeed } from "./src/tasks/youtubeFeed.js";
+import { searchAndScheduleReminders } from "./src/tasks/reminderScheduler.js";
+import { cleanUpVideoData } from "./src/tasks/cleanUpVideoData.js";
+import schedule from "node-schedule";
 
 // スケジュール間隔の定数
-const ONE_MINUTE_SCHEDULE = '0 * * * * *'; // 1分ごと
-const FIVE_MINUTE_SCHEDULE = '0 */5 * * * *'; // 5分ごと
-const TEN_MINUTE_SCHEDULE = '0 */10 * * * *'; // 10分ごと
+const ONE_MINUTE_SCHEDULE = "0 * * * * *"; // 1分ごと
+const FIVE_MINUTE_SCHEDULE = "0 */5 * * * *"; // 5分ごと
+const TEN_MINUTE_SCHEDULE = "0 */10 * * * *"; // 10分ごと
 
 // 1分ごとに実行するスケジュール
-schedule.scheduleJob(ONE_MINUTE_SCHEDULE, function() {
+schedule.scheduleJob(ONE_MINUTE_SCHEDULE, function () {
   console.log(`-`.repeat(50));
   try {
-    startYoutubeFeed(process.env.DISCORD_LIVE_CHANNEL_NAME, process.env.DISCORD_LIVE_WEBHOOK_URL);
+    startYoutubeFeed(
+      process.env.DISCORD_LIVE_CHANNEL_NAME,
+      process.env.DISCORD_LIVE_WEBHOOK_URL
+    );
     searchAndScheduleReminders();
   } catch (error) {
     console.error(`⛔️ Error during task execution: ${error.message}`);
@@ -33,7 +37,7 @@ schedule.scheduleJob(ONE_MINUTE_SCHEDULE, function() {
 });
 
 // 5分ごとに実行するスケジュール
-schedule.scheduleJob(FIVE_MINUTE_SCHEDULE, function() {
+schedule.scheduleJob(FIVE_MINUTE_SCHEDULE, function () {
   try {
     cleanUpVideoData();
   } catch (error) {
@@ -42,9 +46,12 @@ schedule.scheduleJob(FIVE_MINUTE_SCHEDULE, function() {
 });
 
 // 10分ごとに実行するスケジュール
-schedule.scheduleJob(TEN_MINUTE_SCHEDULE, function() {
+schedule.scheduleJob(TEN_MINUTE_SCHEDULE, function () {
   try {
-    startYoutubeFeed(process.env.DISCORD_VIDEO_CHANNEL_NAME, process.env.DISCORD_VIDEO_WEBHOOK_URL);
+    startYoutubeFeed(
+      process.env.DISCORD_VIDEO_CHANNEL_NAME,
+      process.env.DISCORD_VIDEO_WEBHOOK_URL
+    );
   } catch (error) {
     console.error(`⛔️ Error during task execution: ${error.message}`);
   }
