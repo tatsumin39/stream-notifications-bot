@@ -231,8 +231,8 @@ YouTube からのビデオ情報とその配信ステータスを管理します
 | -------------------- | ------------------------ | --------------------------------- |
 | video_id             | VARCHAR(255)             | 動画の一意識別子                  |
 | title                | VARCHAR(255)             | 動画のタイトル                    |
-| published            | TIMESTAMP                | 動画が公開された日時              |
-| updated              | TIMESTAMP                | 動画情報が最後に更新された日時    |
+| published            | TIMESTAMP WITH TIME ZONE | 動画が公開された日時              |
+| updated              | TIMESTAMP WITH TIME ZONE | 動画情報が最後に更新された日時    |
 | channel              | VARCHAR(255)             | 動画が属する YouTube チャンネル名 |
 | status               | VARCHAR(50)              | 動画のライブ配信ステータス        |
 | scheduled_start_time | TIMESTAMP WITH TIME ZONE | 配信予定開始時刻                  |
