@@ -20,14 +20,12 @@ export async function fetchAndStoreVideoData(
   DISCORD_WEBHOOK_URL
 ) {
   const channels = await getChannelsData(DISCORD_CHANNEL_NAME);
-  for (const { channel_id, channel_name, channel_icon_url } of channels) {
-    // console.log(`▶️ 処理を開始: チャンネル名 ${channel_name}`);
-
+  for (let { channel_id, channel_name, channel_icon_url } of channels) {
     if (!(await isUrlAccessible(channel_icon_url))) {
       console.log(
         `⛔️ チャンネル名: ${channel_name} のアイコンURL ${channel_icon_url} が無効です。`
       );
-      await fetchChannelInfo(channel_id);
+      channel_icon_url = await fetchChannelInfo(channel_id);
     }
 
     const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channel_id}`;

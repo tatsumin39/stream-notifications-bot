@@ -32,8 +32,10 @@ export async function fetchChannelInfo(channel_id) {
       const thumbnailUrl = channelSnippet.thumbnails.default.url;
       console.log(`🆙 チャンネル名: ${channelSnippet.title} の新しいアイコンURLは ${thumbnailUrl} です。`);
       await updateChannelIcon(thumbnailUrl, channel_id);
+      return thumbnailUrl; // 新しいアイコンURLを返す
     } else {
       console.log(`⛔️ チャンネルID ${channel_id} のサムネイルが見つかりません。`);
+      return null;
     }
   } catch (error) {
     console.error(`⛔️ API呼び出し中にエラーが発生しました: ${error.message}`);
