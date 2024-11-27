@@ -24,6 +24,8 @@ export function generateDescriptionText(apiLiveBroadcastContent, time, converted
       return `アーカイブはこちら\n配信時間 ${convertedDuration}`;
     case 'video':
       return `動画が投稿されました\n動画時間 ${convertedDuration}`;
+    case 'short':
+      return `ショート動画が投稿されました\n動画時間 ${convertedDuration}`;
     default:
       console.warn(`Unknown broadcast content type: ${apiLiveBroadcastContent}`);
       return '新しいコンテンツが投稿されました！';

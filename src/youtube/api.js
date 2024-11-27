@@ -3,6 +3,7 @@ dotenv.config();
 
 import { google } from 'googleapis';
 import { convertDuration } from '../utils/convertDuration.js';
+import { isShort } from '../utils/isShort.js';
 import { updateChannelIcon } from '../database/updateChannelIcon.js';
 
 const apiKey = process.env.YOUTUBE_API_KEY;
@@ -61,7 +62,7 @@ export async function fetchVideoInfo(videoId) {
 
     let liveBroadcastContent = 'none';
     if (!apiVideoInfo.liveStreamingDetails) {
-      liveBroadcastContent = 'video';
+      liveBroadcastContent = await isShort(videoId) ? 'short' : 'video';
     } else if (apiVideoInfo.snippet.liveBroadcastContent === 'upcoming') {
       liveBroadcastContent = 'upcoming';
     } else if (apiVideoInfo.snippet.liveBroadcastContent === 'live') {
