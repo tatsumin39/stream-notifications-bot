@@ -121,7 +121,7 @@ export async function updateExistingVideoData({ video_id, title, published, upda
     if (result.rowCount === 0) {
       console.log(`⛔️ 更新対象が見つかりませんでした: ${video_id}`);
     } else {
-      console.log(`🆙  既存データの更新が成功しました。 タイトル:${title} Video_ID:${video_id}`);
+      console.log(`🆙  既存データの更新が成功しました。 タイトル:${title} Video_ID:${video_id} status:${status}`);
     }
   } catch (error) {
     console.error('⛔️ 既存データ更新中にエラーが発生しました:', error.message);
