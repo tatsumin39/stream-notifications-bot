@@ -57,7 +57,7 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, DISCORD_W
         isChanged = true;
       } 
     } else {
-      console.log(`✅ アップデートチェック：タイトル:${apiVideoInfo.title} Video_ID:${video_id} ステータス：${apiVideoInfo.liveBroadcastContent} は通知対象ではありませんでした。ませんでした。`);
+      console.log(`✅ アップデートチェック：タイトル:${apiVideoInfo.title} Video_ID:${video_id} ステータス：${apiVideoInfo.liveBroadcastContent} は通知対象ではありませんでした。`);
     }
 
     const updatevideo_data = {
