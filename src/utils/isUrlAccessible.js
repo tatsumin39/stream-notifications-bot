@@ -1,15 +1,23 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 
-// URLがアクセス可能かどうかを確認する関数
+/**
+ * 指定されたURLがアクセス可能かどうかを確認します。
+ *
+ * @async
+ * @function isUrlAccessible
+ * @param {string} url - アクセスを確認するURL
+ * @returns {Promise<boolean>} - アクセス可能な場合は `true`、それ以外は `false`
+ */
 export const isUrlAccessible = async (url) => {
   try {
     const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (response.ok) {
+      return true; // ステータスコード200系の場合はアクセス可能
     }
-    return true;
+    console.warn(`⚠️ URL ${url} へのアクセスが失敗しました。HTTPステータス: ${response.status}`);
+    return false;
   } catch (error) {
-    console.error(`⛔️ URLがアクセスできませんでした - エラーメッセージ: ${error.message}`);
+    console.error(`⛔️ URL ${url} がアクセスできません: ${error.message}`);
     return false;
   }
 };

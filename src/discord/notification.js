@@ -1,41 +1,50 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
+
+const DEFAULT_ICON_URL = "https://www.youtube.com/s/desktop/28b0985e/img/favicon_144x144.png";
+const YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
 
 /**
- * 指定されたデータを使ってDiscordチャンネルに通知を送信します。
- * @param {Object} data - 通知に必要なデータを含むオブジェクトです。
- * @param {string} channelIcon - 通知に使用するチャンネルのアイコンURLです。
- * @param {string} DISCORD_WEBHOOK_URL - 通知を送信するDiscordチャンネルのIDです。
- * @returns {Promise<boolean>} - 通知が成功した場合はtrue、失敗した場合はfalseを返します。
+ * Discord Webhook を使用して通知を送信します。
+ *
+ * @async
+ * @function sendDiscordNotification
+ * @param {Object} data - 通知データを含むオブジェクト
+ * @param {string} data.channel - 通知元のチャンネル名
+ * @param {string} data.video_id - 通知対象の動画 ID
+ * @param {string} data.description_text - メッセージの説明テキスト
+ * @param {string} channelIcon - チャンネルのアイコン URL (オプション)
+ * @param {string} discord_webhook_url - Discord Webhook の URL
+ * @returns {Promise<boolean>} - メッセージが送信された場合は `true`、エラーが発生した場合は `false`
  */
-export async function sendDiscordNotification(data, channelIcon, DISCORD_WEBHOOK_URL) {
-  
-  const youtube_url = 'https://www.youtube.com/watch?v='
-
+export async function sendDiscordNotification(data, channelIcon, discord_webhook_url) {
   const message = {
     username: data.channel,
-    avatar_url: channelIcon || "https://www.youtube.com/s/desktop/28b0985e/img/favicon_144x144.png",
+    avatar_url: channelIcon || DEFAULT_ICON_URL,
     tts: false,
     wait: true,
-    content: `[${data.description_text}](${youtube_url}${data.video_id})`,
+    content: `[${data.description_text}](${YOUTUBE_BASE_URL}${data.video_id})`,
   };
 
   const options = {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(message),
   };
 
   try {
-    const response = await fetch(DISCORD_WEBHOOK_URL, options);
+    const response = await fetch(discord_webhook_url, options);
+
+    // ステータスコードのチェック
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to send message: HTTP status ${response.status}`);
     }
-    console.log(`📤  Discordにメッセージを送信しました。`);
+
+    console.info("📤 Discord にメッセージを送信しました。");
     return true;
   } catch (error) {
-    console.error(`⛔️ エラーが発生しました - エラーメッセージ: ${error.message}`);
+    console.error("⛔️ Discord 通知送信中にエラーが発生しました:", error.message);
     return false;
   }
 }

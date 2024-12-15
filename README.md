@@ -84,11 +84,12 @@
     ├── tasks
     │   ├── cleanUpVideoData.js
     │   ├── reminderScheduler.js
-    │   └── youtubeFeed.js
+    │   └── updateVideoStatuses.js
     ├── utils
     │   ├── convertDuration.js
     │   ├── formatDate.js
     │   ├── formatResultsAsTable.js
+    │   ├── isShort.js
     │   └── isUrlAccessible.js
     └── youtube
         ├── api.js
@@ -102,27 +103,21 @@
 
 ### 環境変数の一覧
 
-このプロジェクトには `.env.example` ファイルが含まれており、これを参考にして `.env` ファイルを作成してください。
-
-| 環境変数名                 | 説明                                                    |
-| -------------------------- | ------------------------------------------------------- |
-| YOUTUBE_API_KEY            | YouTube Data API のキー                                 |
-| DISCORD_BOT_TOKEN          | Discord Bot のトークン                                  |
-| CLIENT_ID                  | Discord クライアント ID                                 |
-| GUILD_ID                   | Discord ギルド(サーバー)ID                              |
-| DISCORD_LIVE_CHANNEL_NAME  | 通知先 Discord チャンネル名（ライブ配信用）             |
-| DISCORD_LIVE_WEBHOOK_URL   | 通知先 Discord チャンネルの Webhook URL（ライブ配信用） |
-| DISCORD_VIDEO_CHANNEL_NAME | 通知先 Discord チャンネル名（動画配信用）               |
-| DISCORD_VIDEO_WEBHOOK_URL  | 通知先 Discord チャンネルの Webhook URL（動画配信用）   |
-| ADMIN_USER_ID              | 管理者の Discord ユーザー ID                            |
-| DB_HOST                    | データベースのホスト名                                  |
-| DB_NAME                    | データベース名                                          |
-| DB_USER                    | データベースユーザー名                                  |
-| DB_PASSWORD                | データベースのパスワード                                |
-| DB_PORT                    | データベースのポート番号                                |
-| REMINDER_SEARCH_INTERVAL   | リマインダー検索の間隔（分）                            |
-| REMINDER_RECHECK_INTERVAL  | リマインダー再検索の間隔（分）                          |
-| MESSAGE_DELETE_TIMEOUT     | DM 自動削除の間隔（秒）                                 |
+| 環境変数名                 | 説明                                          |
+|----------------------------|---------------------------------------------|
+| YOUTUBE_API_KEY           | YouTube Data API のキー                      |
+| DISCORD_BOT_TOKEN         | Discord Bot のトークン                       |
+| CLIENT_ID                 | Discord クライアント ID                      |
+| GUILD_ID                  | Discord ギルド(サーバー)ID                   |
+| ADMIN_USER_ID             | 管理者の Discord ユーザー ID                |
+| DB_HOST                   | データベースのホスト名                       |
+| DB_NAME                   | データベース名                               |
+| DB_USER                   | データベースユーザー名                       |
+| DB_PASSWORD               | データベースのパスワード                     |
+| DB_PORT                   | データベースのポート番号                     |
+| REMINDER_SEARCH_INTERVAL  | リマインダー検索の間隔（分）                 |
+| REMINDER_RECHECK_INTERVAL | リマインダー再検索の間隔（分）               |
+| MESSAGE_DELETE_TIMEOUT    | DM 自動削除の間隔（秒）                      |
 
 Fly.io や Heroku などのサービスを使用する場合は、接続文字列として`DATABASE_URL`を使用してください。
 
@@ -210,77 +205,105 @@ GRANT ALL PRIVILEGES ON DATABASE your_database_name TO your_database_user;
 
 ### データベース設計
 
-このプロジェクトでは、アプリケーションのデータを管理するために 3 つの主要なテーブルを持つデータベースを使用します。以下に各テーブルの概要とスキーマを説明します。
+このプロジェクトでは、アプリケーションのデータを管理するために 4 つの主要なテーブルを持つデータベースを使用します。以下に各テーブルの概要とスキーマを説明します。
 
-#### 1. `channels` テーブル
+#### 1. `discord_webhooks` テーブル
+
+各 Discord チャンネルに対応する Webhook URL を管理します。
+
+| 列名                 | 型           | 説明                                   |
+|----------------------|--------------|----------------------------------------|
+| id                   | int4         | 主キー、自動インクリメント（シーケンス使用）|
+| discord_channel_name | VARCHAR(255) | Discord チャンネル名（ユニーク制約付き）   |
+| discord_webhook_url  | VARCHAR(255) | 通知先 Discord Webhook URL             |
+
+#### 2. `channels` テーブル
 
 チャンネルの基本情報とそれに関連する Discord の通知設定を保持します。
 
-| 列名                 | 型           | 説明                        |
-| -------------------- | ------------ | --------------------------- |
-| channel_id           | VARCHAR(255) | YouTube チャンネル ID       |
-| channel_name         | VARCHAR(255) | YouTube チャンネル名        |
-| channel_icon_url     | VARCHAR(255) | チャンネルのアイコンの URL  |
-| discord_channel_name | VARCHAR(255) | 通知先 Discord チャンネル名 |
+| 列名                 | 型           | 説明                                   |
+|----------------------|--------------|----------------------------------------|
+| channel_id           | VARCHAR(255) | YouTube チャンネル ID（主キー）          |
+| channel_name         | VARCHAR(255) | YouTube チャンネル名                   |
+| channel_icon_url     | VARCHAR(255) | チャンネルのアイコンの URL             |
+| discord_channel_name | VARCHAR(255) | 通知先 Discord チャンネル名（外部キー制約）|
+| interval_minutes     | int4         | データ取得間隔（分）                    |
+| is_active            | BOOLEAN      | データ取得対象かどうか                 |
+| sort_order           | int4         | 表示や処理順序のための値                |
 
-#### 2. `video_data` テーブル
+#### 3. `video_data` テーブル
 
 YouTube からのビデオ情報とその配信ステータスを管理します。
 
-| 列名                 | 型                       | 説明                              |
-| -------------------- | ------------------------ | --------------------------------- |
-| video_id             | VARCHAR(255)             | 動画の一意識別子                  |
-| title                | VARCHAR(255)             | 動画のタイトル                    |
-| published            | TIMESTAMP WITH TIME ZONE | 動画が公開された日時              |
-| updated              | TIMESTAMP WITH TIME ZONE | 動画情報が最後に更新された日時    |
-| channel              | VARCHAR(255)             | 動画が属する YouTube チャンネル名 |
-| status               | VARCHAR(50)              | 動画のライブ配信ステータス        |
-| scheduled_start_time | TIMESTAMP WITH TIME ZONE | 配信予定開始時刻                  |
-| actual_start_time    | TIMESTAMP WITH TIME ZONE | 実際の配信開始時刻                |
-| actual_end_time      | TIMESTAMP WITH TIME ZONE | 配信終了時刻                    |
-| duration             | VARCHAR(50)              | 動画の長さ（HH:MM:SS 形式）       |
+| 列名                 | 型                       | 説明                                   |
+|----------------------|--------------------------|----------------------------------------|
+| video_id             | VARCHAR(255)            | 動画の一意識別子（主キー）              |
+| title                | VARCHAR(255)            | 動画のタイトル                        |
+| published            | TIMESTAMP WITH TIME ZONE| 動画が公開された日時                   |
+| updated              | TIMESTAMP WITH TIME ZONE| 動画情報が最後に更新された日時         |
+| channel_id           | VARCHAR(255)            | 動画が属する YouTube チャンネル ID     |
+| status               | VARCHAR(50)             | 動画のライブ配信ステータス             |
+| scheduled_start_time | TIMESTAMP WITH TIME ZONE| 配信予定開始時刻                       |
+| actual_start_time    | TIMESTAMP WITH TIME ZONE| 実際の配信開始時刻                     |
+| actual_end_time      | TIMESTAMP WITH TIME ZONE| 配信終了時刻                           |
+| duration             | VARCHAR(50)             | 動画の長さ（HH:MM:SS 形式）            |
 
-#### 3. `reminder` テーブル
+#### 4. `reminder` テーブル
 
 ユーザー設定に基づくリマインダー情報とその通知状態を追跡します。
 
-| 列名            | 型                       | 説明                              |
-| --------------- | ------------------------ | --------------------------------- |
-| id              | INTEGER                  | 主キー、自動インクリメント        |
-| user_id         | BIGINT                   | リマインダーを設定したユーザー ID |
-| message_content | TEXT                     | リマインダーのメッセージ内容      |
-| reminder_time   | TIMESTAMP WITH TIME ZONE | リマインダーの設定時刻            |
-| scheduled       | BOOLEAN                  | スケジュール登録状況　　          |
-| executed        | BOOLEAN                  | リマインダー実行状況              |
-| video_id        | VARCHAR(255)             | YouTube のビデオ ID               |
+| 列名            | 型                        | 説明                                   |
+|------------------|--------------------------|----------------------------------------|
+| id              | int4                     | 主キー、自動インクリメント（シーケンス使用）|
+| user_id         | BIGINT                   | リマインダーを設定したユーザー ID      |
+| message_content | TEXT                     | リマインダーのメッセージ内容           |
+| reminder_time   | TIMESTAMP WITH TIME ZONE | リマインダーの設定時刻                 |
+| scheduled       | BOOLEAN                  | スケジュール登録状況                   |
+| executed        | BOOLEAN                  | リマインダー実行状況                   |
+| video_id        | VARCHAR(255)             | YouTube のビデオ ID                   |
 
 ### データベースのテーブル作成
 
 以下の SQL を実行して、データベースのテーブルを作成します。
 
 ```sql
+CREATE SEQUENCE discord_webhooks_id_seq;
+
+CREATE TABLE discord_webhooks (
+    id int4 PRIMARY KEY DEFAULT nextval('discord_webhooks_id_seq'),
+    discord_channel_name VARCHAR(255) NOT NULL UNIQUE,
+    discord_webhook_url VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE channels (
     channel_id VARCHAR(255) PRIMARY KEY,
     channel_name VARCHAR(255) NOT NULL,
     channel_icon_url VARCHAR(255),
-    discord_channel_name VARCHAR(255) NOT NULL
+    discord_channel_name VARCHAR(255) NOT NULL,
+    interval_minutes int4,
+    is_active BOOLEAN DEFAULT TRUE,
+    sort_order int4,
+    FOREIGN KEY (discord_channel_name) REFERENCES discord_webhooks(discord_channel_name)
 );
 
 CREATE TABLE video_data (
     video_id VARCHAR(255) PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    published TIMESTAMP NOT NULL,
-    updated TIMESTAMP NOT NULL,
-    channel VARCHAR(255) NOT NULL,
+    published TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated TIMESTAMP WITH TIME ZONE NOT NULL,
+    channel_id VARCHAR(255) NOT NULL,
     status VARCHAR(50),
     scheduled_start_time TIMESTAMP WITH TIME ZONE,
     actual_start_time TIMESTAMP WITH TIME ZONE,
     actual_end_time TIMESTAMP WITH TIME ZONE,
-    duration VARCHAR(50)
+    duration VARCHAR(50),
+    FOREIGN KEY (channel_id) REFERENCES channels(channel_id)
 );
 
+CREATE SEQUENCE reminder_id_seq;
+
 CREATE TABLE reminder (
-    id SERIAL PRIMARY KEY,
+    id int4 PRIMARY KEY DEFAULT nextval('reminder_id_seq'),
     user_id BIGINT NOT NULL,
     message_content TEXT NOT NULL,
     reminder_time TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -291,16 +314,25 @@ CREATE TABLE reminder (
 );
 ```
 
-### channels テーブルへのデータ登録
+### テーブルへの初期データ登録
 
-1. `channels` テーブルにデータを登録します。以下は、例として登録する SQL 文です。
+#### `discord_webhooks` テーブルに Webhook を登録します。以下は、例として登録する SQL 文です。
 
 ```sql
-INSERT INTO channels (channel_id, channel_name, discord_channel_name)
-VALUES ('UC_x5XG1OV2P6uZZ5FSM9Ttw', 'Google Developers', '配信者更新通知');
+INSERT INTO discord_webhooks (discord_channel_name, discord_webhook_url)
+VALUES ('配信者更新通知', 'https://discord.com/api/webhooks/12345/abcdef');
 ```
 
-必要に応じて、channel_id, channel_name, discord_channel_name を適切な値に置き換えてください。
+必要に応じて、discord_channel_name, discord_webhook_url を適切な値に置き換えてください。
+
+#### `channels` テーブルにデータを登録します。以下は、例として登録する SQL 文です。
+
+```sql
+INSERT INTO channels (channel_id, channel_name, channel_icon_url, discord_channel_name, interval_minutes, is_active, sort_order)
+VALUES ('UC_x5XG1OV2P6uZZ5FSM9Ttw', 'Google Developers', 'https://example.com/icon.png', '配信者更新通知', 10, true, 1);
+```
+
+必要に応じて、channel_id, channel_name, channel_icon_url, discord_channel_name, interval_minutes, is_active, sort_order を適切な値に置き換えてください。
 
 ### アプリケーションのインストール
 
@@ -517,11 +549,12 @@ Before running this project, you will need the following
     ├── tasks
     │   ├── cleanUpVideoData.js
     │   ├── reminderScheduler.js
-    │   └── youtubeFeed.js
+    │   └── updateVideoStatuses.js
     ├── utils
     │   ├── convertDuration.js
     │   ├── formatDate.js
     │   ├── formatResultsAsTable.js
+    │   ├── isShort.js
     │   └── isUrlAccessible.js
     └── youtube
         ├── api.js
@@ -541,10 +574,6 @@ This project contains a `.env.example` file, which can be used as a reference to
 | DISCORD_BOT_TOKEN          | Discord Bot Token                                                      |
 | CLIENT_ID                  | Discord Client ID                                                      |
 | GUILD_ID                   | Discord Guild(server) ID                                               |
-| DISCORD_LIVE_CHANNEL_NAME  | Name of Discord channel to be notified (for live streaming)            |
-| DISCORD_LIVE_WEBHOOK_URL   | Webhook URL of the Discord channel to be notified (for live streaming) |
-| DISCORD_VIDEO_CHANNEL_NAME | Discord channel name to notify (for videos)                            |
-| DISCORD_VIDEO_WEBHOOK_URL  | Webhook URL of the Discord channel to be notified (for videos)         |
 | ADMIN_USER_ID              | Administrator's Discord user ID                                        |
 | DB_HOST                    | Database host name                                                     |
 | DB_NAME                    | Database Name                                                          |
@@ -641,77 +670,105 @@ The database connection is configured in the `dbConfig.js` file. Since `dbConfig
 
 ### Database Design
 
-This project will use a database with three main tables to manage the application's data. Below is an overview of each table and its schema.
+This project uses a database with four main tables to manage application data. Below are the details and schemas for each table.
 
-#### 1. `channels` table
+#### 1. `discord_webhooks` Table
 
-Maintains basic channel information and associated Discord notification settings.
+This table manages the webhook URLs for each Discord channel.
 
-| Column name          | Type         | Description                    |
-| -------------------- | ------------ | ------------------------------ |
-| channel_id           | VARCHAR(255) | YouTube Channel ID             |
-| channel_name         | VARCHAR(255) | YouTube Channel Name           |
-| channel_icon_url     | VARCHAR(255) | Channel Icon URL               |
-| discord_channel_name | VARCHAR(255) | Discord channel name to notify |
+| Column name          | Type         | Description                                     |
+| -------------------- | ------------ | ----------------------------------------------- |
+| id                   | int4         | Primary key, auto-incremented (uses a sequence) |
+| discord_channel_name | VARCHAR(255) | Discord channel name (with a unique constraint) |
+| discord_webhook_url  | VARCHAR(255) | Webhook URL for Discord notifications           |
 
-#### 2. `video_data` table
+#### 2. `channels` Table
 
-Manage video information from YouTube and its distribution status.
+This table stores basic information about YouTube channels and their associated Discord notification settings.
 
-| Column name          | Type                     | Description                                          |
-| -------------------- | ------------------------ | ---------------------------------------------------- |
-| video_id             | VARCHAR(255)             | Unique identifier of the video                       |
-| title                | VARCHAR(255)             | Title of the video                                   |
-| published            | TIMESTAMP                | Date and time the video was published                |
-| updated              | TIMESTAMP                | Date and time the video information was last updated |
-| channel              | VARCHAR(255)             | YouTube channel name to which the video belongs      |
-| status               | VARCHAR(50)              | Live streaming status of the video                   |
-| scheduled_start_time | TIMESTAMP WITH TIME ZONE | Scheduled start time of streaming                    |
-| actual_start_time    | TIMESTAMP WITH TIME ZONE | Actual start time of distribution                    |
-| actual_end_time      | TIMESTAMP WITH TIME ZONE | Actual end time of distribution                      |
-| duration             | VARCHAR(50)              | Video duration (HH:MM:SS format)                     |
+| Column name          | Type         | Description                                   |
+| -------------------- | ------------ | --------------------------------------------- |
+| channel_id           | VARCHAR(255) | YouTube channel ID (primary key)              |
+| channel_name         | VARCHAR(255) | YouTube channel name                          |
+| channel_icon_url     | VARCHAR(255) | URL of the channel's icon.                    |
+| discord_channel_name | VARCHAR(255) | Associated Discord channel name (foreign key) |
+| interval_minutes     | int4         | Data fetch interval in minutes                |
+| is_active            | BOOLEAN      | Whether the channel is active for data fetch  |
+| sort_order           | int4         | Order value for display and processing        |
 
-#### 3. `reminder` table
+#### 3. `video_data` Table
 
-Tracks reminder information and its notification status based on user preferences.
+This table manages video information retrieved from YouTube and their streaming statuses.
 
-| Column name     | Type                     | Description                            |
-| --------------- | ------------------------ | -------------------------------------- |
-| id              | INTEGER                  | Primary key, auto-increment            |
-| user_id         | BIGINT                   | User ID for which the reminder was set |
-| message_content | TEXT                     | Message content of the reminder        |
-| reminder_time   | TIMESTAMP WITH TIME ZONE | Time at which the reminder was set     |
-| scheduled       | BOOLEAN                  | Schedule registration status           |
-| executed        | BOOLEAN                  | Reminder execution status              |
-| video_id        | VARCHAR(255)             | YouTube video ID                       |
+| Column name          | Type                     | Description                                              |
+| -------------------- | ------------------------ | -------------------------------------------------------- |
+| video_id             | VARCHAR(255)             | Unique video identifier (primary key)                    |
+| title                | VARCHAR(255)             | Video title                                              |
+| published            | TIMESTAMP WITH TIME ZONE | The date and time the video was published                |
+| updated              | TIMESTAMP WITH TIME ZONE | The date and time the video information was last updated |
+| channel_id           | VARCHAR(255)             | YouTube channel ID associated with the video             |
+| status               | VARCHAR(50)              | Streaming status of the video                            |
+| scheduled_start_time | TIMESTAMP WITH TIME ZONE | Scheduled start time of streaming                        |
+| actual_start_time    | TIMESTAMP WITH TIME ZONE | Actual start time of distribution                        |
+| actual_end_time      | TIMESTAMP WITH TIME ZONE | Actual end time of distribution                          |
+| duration             | VARCHAR(50)              | Video duration in the format HH:MM:SS                    |
+
+#### 4. `reminder` Table
+
+This table tracks reminders set by users and their notification statuses.
+
+| Column name     | Type                     | Description                                     |
+| --------------- | ------------------------ | ----------------------------------------------- |
+| id              | int4                     | Primary key, auto-incremented (uses a sequence) |
+| user_id         | BIGINT                   | ID of the user who set the reminder             |
+| message_content | TEXT                     | Content of the reminder message                 |
+| reminder_time   | TIMESTAMP WITH TIME ZONE | Scheduled time of the reminder                  |
+| scheduled       | BOOLEAN                  | Whether the reminder is scheduled               |
+| executed        | BOOLEAN                  | Whether the reminder has been executed          |
+| video_id        | VARCHAR(255)             | YouTube video ID associated with the reminder   |
 
 ### Creating Database Tables
 
-Execute the following SQL to create database tables.
+Run the following SQL commands to create the database tables.
 
 ```sql
+CREATE SEQUENCE discord_webhooks_id_seq;
+
+CREATE TABLE discord_webhooks (
+    id int4 PRIMARY KEY DEFAULT nextval('discord_webhooks_id_seq'),
+    discord_channel_name VARCHAR(255) NOT NULL UNIQUE,
+    discord_webhook_url VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE channels (
     channel_id VARCHAR(255) PRIMARY KEY,
     channel_name VARCHAR(255) NOT NULL,
     channel_icon_url VARCHAR(255),
-    discord_channel_name VARCHAR(255) NOT NULL
+    discord_channel_name VARCHAR(255) NOT NULL,
+    interval_minutes int4,
+    is_active BOOLEAN DEFAULT TRUE,
+    sort_order int4,
+    FOREIGN KEY (discord_channel_name) REFERENCES discord_webhooks(discord_channel_name)
 );
 
 CREATE TABLE video_data (
     video_id VARCHAR(255) PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    published TIMESTAMP NOT NULL,
-    updated TIMESTAMP NOT NULL,
-    channel VARCHAR(255) NOT NULL,
+    published TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated TIMESTAMP WITH TIME ZONE NOT NULL,
+    channel_id VARCHAR(255) NOT NULL,
     status VARCHAR(50),
     scheduled_start_time TIMESTAMP WITH TIME ZONE,
     actual_start_time TIMESTAMP WITH TIME ZONE,
     actual_end_time TIMESTAMP WITH TIME ZONE,
-    duration VARCHAR(50)
+    duration VARCHAR(50),
+    FOREIGN KEY (channel_id) REFERENCES channels(channel_id)
 );
 
+CREATE SEQUENCE reminder_id_seq;
+
 CREATE TABLE reminder (
-    id SERIAL PRIMARY KEY,
+    id int4 PRIMARY KEY DEFAULT nextval('reminder_id_seq'),
     user_id BIGINT NOT NULL,
     message_content TEXT NOT NULL,
     reminder_time TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -722,16 +779,24 @@ CREATE TABLE reminder (
 );
 ```
 
-### Registering data in the channels table
+### Initial Data Registration for Tables
 
+1. `discord_webhooks` Register data in a table. Below is an SQL statement to register as an example.
+
+```sql
+INSERT INTO discord_webhooks (discord_channel_name, discord_webhook_url)
+VALUES ('Streamer Update Notifications', 'https://discord.com/api/webhooks/12345/abcdef');
+```
+Replace discord_channel_name, and discord_webhook_url with appropriate values if necessary.
+   
 1. `channels` Register data in a table. Below is an SQL statement to register as an example.
 
 ```sql
-INSERT INTO channels (channel_id, channel_name, discord_channel_name)
-VALUES ('UC_x5XG1OV2P6uZZ5FSM9Ttw', 'Google Developers', 'Streamer update notifications');
+INSERT INTO channels (channel_id, channel_name, channel_icon_url, discord_channel_name, interval_minutes, is_active, sort_order)
+VALUES ('UC_x5XG1OV2P6uZZ5FSM9Ttw', 'Google Developers', 'https://example.com/icon.png', 'Streamer Update Notifications', 10, true, 1);
 ```
 
-Replace channel_id, channel_name, and discord_channel_name with appropriate values if necessary.
+Replace channel_id, channel_name, channel_icon_url, discord_channel_name, and interval_minutes with appropriate values if necessary.
 
 ### Application Installation
 
