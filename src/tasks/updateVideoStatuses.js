@@ -56,7 +56,7 @@ export async function updateVideoStatuses() {
       const dbVideo = result.rows[index];
 
       if (!apiVideoInfo) {
-        console.warn(`[updateVideoStatuses] 動画情報を取得できませんでした - Video_ID: ${dbVideo.video_id}`);
+        console.warn(`[updateVideoStatuses] 動画情報を取得できませんでした - (Video_ID: ${dbVideo.video_id})`);
         continue;
       }
 
