@@ -1,16 +1,6 @@
-import dayjs from "dayjs";
-import timezone from "dayjs/plugin/timezone.js";
-import utc from "dayjs/plugin/utc.js";
-import {
-  registerReminder,
-  searchRemindersByvideoId,
-  updateReminderTime,
-} from "../database/reminderModel.js";
+import { registerReminder, searchRemindersByvideoId } from "../database/reminderModel.js";
 import { client } from "../discord/bot.js";
-
-// Day.js にプラグインを適用
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { formatDate } from "../utils/formatDate.js";
 
 /**
  * ユーザーのリアクションに基づき、リマインダーを設定します。
@@ -34,27 +24,27 @@ export async function handleSetReminder(user, messageContent) {
     if (!videoId) throw new Error("ビデオIDを抽出できませんでした。");
 
     // 配信予定時刻を作成 (5分前)
-    const reminderTime = dayjs(
-      `${new Date().getFullYear()}-${matches[1]}-${matches[2]} ${matches[3]}:${matches[4]}`,
-      "YYYY-MM-DD HH:mm"
-    )
-      .tz("Asia/Tokyo")
-      .subtract(5, "minute");
-    const now = dayjs().tz("Asia/Tokyo");
+    const reminderTime = new Date(new Date().getFullYear(), matches[1] - 1, matches[2], matches[3], matches[4]);
+    reminderTime.setMinutes(reminderTime.getMinutes() - 5);
 
-    if (!reminderTime.isAfter(now)) {
+    const now = new Date();
+
+    if (reminderTime <= now) {
       console.log("⛔️ 5分以内または過去の時刻のため、リマインダーを登録しませんでした。");
       return;
     }
 
     // リマインダーを登録
-    const reminderId = await registerReminder(user.id, messageContent, reminderTime.toDate(), videoId);
+    const reminderId = await registerReminder(user.id, videoId);
     if (!reminderId || reminderId === "exists") {
       console.log("⛔️ リマインダーの登録に失敗するか、既に登録済みです。");
       return;
     }
 
-    console.log(`✅ リマインダーが登録されました: ID ${reminderId}`);
+    // reminderTimeをフォーマット
+    const formattedReminderTime = formatDate(reminderTime, 'YYYY-MM-DDTHH:mm:ss');
+
+    console.log(`✅ リマインダーが登録されました: ID ${reminderId}, 時刻: ${formattedReminderTime}`);
   } catch (error) {
     console.error("⛔️ リマインダー設定中にエラーが発生しました:", error.message);
   }
@@ -76,23 +66,19 @@ export async function handleScheduleChange(videoId, newScheduledTimeUTC) {
       return;
     }
 
-    const newScheduledTimeJST = dayjs(newScheduledTimeUTC).tz("Asia/Tokyo").format("MM/DD HH:mm");
+    const newScheduledTimeJST = formatDate(newScheduledTimeUTC, 'MM/DD HH:mm');
 
     for (const reminder of reminders) {
       try {
         // メッセージ内容の更新
-        const updatedMessageContent = reminder.message_content.replace(
-          /\[\d{2}\/\d{2} \d{2}:\d{2}から配信予定！\]/,
-          `[${newScheduledTimeJST}から配信予定！]`
-        );
+        const messageContent = `[${newScheduledTimeJST}から配信予定！](https://www.youtube.com/watch?v=${videoId})`;
 
-        await updateReminderTime(reminder.id, newScheduledTimeUTC, updatedMessageContent);
         console.log(`✅ リマインダーID ${reminder.id} を更新しました。新しい時刻: ${newScheduledTimeUTC}`);
 
         // ユーザーへの通知
         const user = await client.users.fetch(reminder.user_id);
         await user.send(
-          `🆙 リマインダー更新通知: 登録された配信予定時刻が変更されました。\n新しい時刻: ${updatedMessageContent}\n配信開始の5分前にリマインダーを送ります。`
+          `🆙 リマインダー更新通知: 登録された配信予定時刻に変更がありました。\n新しい配信予定時刻: ${messageContent}\n配信開始の5分前に再度リマインダーを送ります。`
         );
       } catch (error) {
         console.error(`⛔️ リマインダーID ${reminder.id} の更新中にエラーが発生しました:`, error.message);

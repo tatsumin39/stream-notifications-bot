@@ -9,7 +9,6 @@ import dayjs from "dayjs";
  * @returns {string|null} - フォーマットされた日付文字列を返す。無効な日付の場合は `null`。
  */
 export function formatDate(dateInput, format = "YYYY-MM-DDTHH:mm:ss") {
-// export function formatDate(dateString, format = 'YYYY-MM-DDTHH:mm:ss') {
   // 入力がない場合のエラーハンドリング
   if (!dateInput) {
     console.error(`⛔️ 無効な日付が渡されました: "${dateInput}"`);
