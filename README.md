@@ -256,8 +256,6 @@ YouTube からのビデオデータとその配信ステータスを管理しま
 |------------------|--------------------------|----------------------------------------|
 | id              | int4                     | 主キー、自動インクリメント（シーケンス使用）|
 | user_id         | BIGINT                   | リマインダーを設定したユーザー ID      |
-| message_content | TEXT                     | リマインダーのメッセージ内容           |
-| reminder_time   | TIMESTAMP WITH TIME ZONE | リマインダーの設定時刻                 |
 | scheduled       | BOOLEAN                  | スケジュール登録状況                   |
 | executed        | BOOLEAN                  | リマインダー実行状況                   |
 | video_id        | VARCHAR(255)             | YouTube のビデオ ID                   |
@@ -305,8 +303,6 @@ CREATE SEQUENCE reminder_id_seq;
 CREATE TABLE reminder (
     id int4 PRIMARY KEY DEFAULT nextval('reminder_id_seq'),
     user_id BIGINT NOT NULL,
-    message_content TEXT NOT NULL,
-    reminder_time TIMESTAMP WITH TIME ZONE NOT NULL,
     scheduled BOOLEAN DEFAULT FALSE,
     executed BOOLEAN DEFAULT FALSE,
     video_id VARCHAR(255),
@@ -721,8 +717,6 @@ This table tracks reminders set by users and their notification statuses.
 | --------------- | ------------------------ | ----------------------------------------------- |
 | id              | int4                     | Primary key, auto-incremented (uses a sequence) |
 | user_id         | BIGINT                   | ID of the user who set the reminder             |
-| message_content | TEXT                     | Content of the reminder message                 |
-| reminder_time   | TIMESTAMP WITH TIME ZONE | Scheduled time of the reminder                  |
 | scheduled       | BOOLEAN                  | Whether the reminder is scheduled               |
 | executed        | BOOLEAN                  | Whether the reminder has been executed          |
 | video_id        | VARCHAR(255)             | YouTube video ID associated with the reminder   |
@@ -770,8 +764,6 @@ CREATE SEQUENCE reminder_id_seq;
 CREATE TABLE reminder (
     id int4 PRIMARY KEY DEFAULT nextval('reminder_id_seq'),
     user_id BIGINT NOT NULL,
-    message_content TEXT NOT NULL,
-    reminder_time TIMESTAMP WITH TIME ZONE NOT NULL,
     scheduled BOOLEAN DEFAULT FALSE,
     executed BOOLEAN DEFAULT FALSE,
     video_id VARCHAR(255),
