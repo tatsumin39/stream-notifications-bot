@@ -233,7 +233,7 @@ GRANT ALL PRIVILEGES ON DATABASE your_database_name TO your_database_user;
 
 #### 3. `video_data` テーブル
 
-YouTube からのビデオ情報とその配信ステータスを管理します。
+YouTube からのビデオデータとその配信ステータスを管理します。
 
 | 列名                 | 型                       | 説明                                   |
 |----------------------|--------------------------|----------------------------------------|

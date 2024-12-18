@@ -73,6 +73,6 @@ export async function searchAndScheduleReminders() {
     const elapsedMilliseconds = endTimestamp - startTimestamp;
     const elapsedSeconds = elapsedMilliseconds / 1000;
 
-    console.log(`🕒 リマインダーの検索とスケジュール実行時間: ${elapsedSeconds}秒`);
+    console.log(`⏱️ リマインダーの検索とスケジュール実行時間: ${elapsedSeconds}秒`);
   }
 }

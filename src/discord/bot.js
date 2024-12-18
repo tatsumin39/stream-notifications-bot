@@ -66,7 +66,7 @@ client.once("ready", async () => {
         reminderId: reminder.id,
         reminderTime,
       });
-      console.info(`🔄 Rescheduled reminder ID: ${reminder.id}`);
+      console.info(`🔄 リマインダーを再スケジュールしました。 : reminder ID: ${reminder.id}`);
     }
   } catch (error) {
     console.error("⛔️ Error rescheduling reminders:", error);

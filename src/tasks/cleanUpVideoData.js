@@ -48,7 +48,7 @@ export async function cleanUpVideoData() {
   }
 
   const elapsedSeconds = (Date.now() - startTimestamp) / 1000;
-  console.log(`🕒 video_dataテーブルのクリーンアップ実行時間: ${elapsedSeconds}秒`);
+  console.log(`⏱️ video_dataテーブルのクリーンアップ実行時間: ${elapsedSeconds}秒`);
 }
 
 /**

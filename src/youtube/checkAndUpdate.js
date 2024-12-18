@@ -36,7 +36,6 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, discord_w
     const dbUpdatedDate = new Date(existingData.updated).getTime();
 
     if (rssUpdatedDate === dbUpdatedDate) {
-      // console.log(`✅ Video_ID: ${video_id} に変更はありません。`);
       return;
     }
 
@@ -44,7 +43,7 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, discord_w
     if (['none', 'upcoming', 'live'].includes(status)) {
       const apiVideoInfo = await fetchVideoInfo(video_id);
       if (!apiVideoInfo) {
-        console.warn(`⛔️ ビデオ情報が見つかりませんでした - Video_ID: ${video_id}`);
+        console.warn(`⛔️ ビデオデータが見つかりませんでした - Video_ID: ${video_id}`);
         return;
       }
 

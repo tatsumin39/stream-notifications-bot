@@ -110,7 +110,7 @@ async function setupSchedules() {
         }
         // グループ全体の終了時刻と実行時間測定
         const groupElapsedMilliseconds = new Date() - groupStartTimestamp;
-        console.log(`🕒 YouTubeデータ検索と通知実行時間 更新間隔${interval}分グループ: ${groupElapsedMilliseconds / 1000}秒`);
+        console.log(`⏱️ YouTubeデータ検索と通知実行時間 更新間隔${interval}分グループ: ${groupElapsedMilliseconds / 1000}秒`);
       });
     
       activeSchedules.set(cronExpression, job);

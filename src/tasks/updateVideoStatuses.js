@@ -68,7 +68,7 @@ export async function updateVideoStatuses() {
   } finally {
     client.release();
     const elapsedMilliseconds = new Date() - startTimestamp;
-    console.info(`🕒 upcoming ステータスチェック実行時間: ${elapsedMilliseconds / 1000}秒`);
+    console.info(`⏱️ upcoming ステータスチェック実行時間: ${elapsedMilliseconds / 1000}秒`);
   }
 }
 

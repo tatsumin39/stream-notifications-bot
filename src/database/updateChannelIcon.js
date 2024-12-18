@@ -25,7 +25,7 @@ export async function updateChannelIcon(thumbnailUrl, channel_id) {
     const { rowCount } = await pool.query(query, params);
 
     if (rowCount > 0) {
-      console.info(`✅ Channel icon updated successfully for channel ID: ${channel_id}`);
+      console.info(`✅ チャンネルアイコンがアップデートされました。 channel ID: ${channel_id}`);
       return true;
     } else {
       console.warn(`⚠️ No channel found to update for channel ID: ${channel_id}`);
