@@ -131,7 +131,7 @@ async function processVideoUpdate(apiVideoInfo, dbVideo) {
         channel_icon_url,
         discord_webhook_url
       );
-      console.info(`✅ Discord 通知を送信しました - Video_ID: ${apiVideoInfo.videoId}`);
+      console.info(`✅ Discord 通知を送信しました - (Video_ID: ${apiVideoInfo.videoId})`);
     } else {
       console.warn(`⚠️ Discord Webhook URL が設定されていません - Channel Name: ${channel_name}`);
     }
