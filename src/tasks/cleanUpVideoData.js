@@ -104,7 +104,7 @@ function logOldVideos(status, videos) {
   if (videos.length > 0) {
     console.log(`🗑️ ${videos.length}件の削除対象の ${status} ステータスの動画:`);
     videos.forEach(({ title, video_id }) => {
-      console.log(`  - タイトル: ${title}, Video_ID: ${video_id}`);
+      console.log(`  - タイトル: ${title} (Video_ID: ${video_id})`);
     });
   }
 }

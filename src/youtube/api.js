@@ -87,13 +87,13 @@ export async function fetchVideoInfo(videoId) {
 
     // 動画情報の存在を確認
     if (!response.data.items || response.data.items.length === 0) {
-      console.warn(`⛔️ 動画情報が見つかりません - Video_ID: ${videoId}`);
+      console.warn(`⛔️ 動画情報が見つかりません - (Video_ID: ${videoId})`);
       return null;
     }
 
     const apiVideoInfo = response.data.items[0];
     console.log(
-      `🤖 YouTube.Videos.list API 実行: タイトル - ${apiVideoInfo.snippet.title}, Video_ID: ${videoId}`
+      `🤖 YouTube.Videos.list API 実行: タイトル - ${apiVideoInfo.snippet.title} (Video_ID: ${videoId})`
     );
 
     // ステータスを判定
@@ -133,7 +133,7 @@ export async function fetchVideoInfo(videoId) {
     };
   } catch (error) {
     console.error(
-      `⛔️ fetchVideoInfo でエラーが発生しました - Video_ID: ${videoId}, エラー: ${error.message}`
+      `⛔️ fetchVideoInfo でエラーが発生しました - (Video_ID: ${videoId}) エラー: ${error.message}`
     );
     return null; // 不完全なデータの場合は null を返す
   }

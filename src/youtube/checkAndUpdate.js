@@ -43,13 +43,13 @@ export async function checkAndUpdatevideo_data(data, channel_icon_url, discord_w
     if (['none', 'upcoming', 'live'].includes(status)) {
       const apiVideoInfo = await fetchVideoInfo(video_id);
       if (!apiVideoInfo) {
-        console.warn(`⛔️ ビデオデータが見つかりませんでした - Video_ID: ${video_id}`);
+        console.warn(`⛔️ ビデオデータが見つかりませんでした - (Video_ID: ${video_id})`);
         return;
       }
 
       // 無効なステータスの場合は処理を中断
       if (apiVideoInfo.liveBroadcastContent === 'none') {
-        console.warn(`⛔️ 無効なビデオステータスのため処理を中断しました - Video_ID: ${video_id}`);
+        console.warn(`⛔️ 無効なビデオステータスのため処理を中断しました - (Video_ID: ${video_id})`);
         return;
       }
 

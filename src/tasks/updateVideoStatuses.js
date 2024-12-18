@@ -111,7 +111,7 @@ async function processVideoUpdate(apiVideoInfo, dbVideo) {
 
   // ステータスが `upcoming` 以外の場合の処理
   if (apiVideoInfo.liveBroadcastContent !== "upcoming") {
-    console.info(`✅ ステータス変更 - Video_ID: ${video_id}, 新ステータス: ${apiVideoInfo.liveBroadcastContent}`);
+    console.info(`✅ ステータス変更 - (Video_ID: ${video_id}) 新ステータス: ${apiVideoInfo.liveBroadcastContent}`);
     await updateExistingVideoData(updateVideoData);
 
     const description = generateDescriptionText(
@@ -141,7 +141,7 @@ async function processVideoUpdate(apiVideoInfo, dbVideo) {
     const apiTimeFormatted = formatDate(apiScheduledStartTime, "YYYY-MM-DDTHH:mm:ss");
 
     if (dbTimeFormatted !== apiTimeFormatted) {
-      console.info(`✅ 配信予定時間変更 - Video_ID: ${video_id}, 旧時間: ${dbTimeFormatted}, 新時間: ${apiTimeFormatted}`);
+      console.info(`✅ 配信予定時間変更 - (Video_ID: ${video_id}) 旧時間: ${dbTimeFormatted}, 新時間: ${apiTimeFormatted}`);
       await updateExistingVideoData(updateVideoData);
     }
   }

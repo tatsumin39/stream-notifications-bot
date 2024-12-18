@@ -109,7 +109,7 @@ export async function insertNewVideoData(videoData) {
 
   try {
     await pool.query(query, params);
-    console.info(`🆕 新規ビデオデータを登録しました。 : Title: ${title}, Video_ID: ${video_id}`);
+    console.info(`🆕 新規ビデオデータを登録しました。 : Title: ${title} (Video_ID: ${video_id})`);
   } catch (error) {
     console.error(`⛔️ Error inserting video data (Video_ID: ${video_id}):`, error.message);
   }
@@ -160,7 +160,7 @@ export async function updateExistingVideoData(videoData) {
     if (result.rowCount === 0) {
       console.warn(`⛔️ No record found to update (Video_ID: ${video_id})`);
     } else {
-      console.info(`🆙 ビデオデータがアップデートされました。 Title: ${title}, (Video_ID: ${video_id})`);
+      console.info(`🆙 ビデオデータがアップデートされました。 Title: ${title} (Video_ID: ${video_id})`);
     }
   } catch (error) {
     console.error(`⛔️ Error updating video data (Video_ID: ${video_id}):`, error.message);
