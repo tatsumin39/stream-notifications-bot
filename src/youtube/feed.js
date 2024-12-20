@@ -7,6 +7,7 @@ import { sendDiscordNotification } from "../discord/notification.js";
 import { formatDate } from "../utils/formatDate.js";
 import { isUrlAccessible } from "../utils/isUrlAccessible.js";
 import { fetchChannelInfo } from "./api.js";
+import { setupSchedules } from "../../index.js";
 
 /**
  * 指定されたチャンネルの YouTube RSS フィードから動画データを取得し、データベースに保存後、
@@ -26,12 +27,13 @@ export async function fetchAndStoreVideoData(
   channel_icon_url,
   discord_webhook_url
 ) {
-  // チャンネルアイコン URL の有効性を確認
-  if (!(await isUrlAccessible(channel_icon_url))) {
+  // チャンネルのアイコン URL が null または無効なURLの場合に新しいアイコンを取得
+  if (!channel_icon_url || !(await isUrlAccessible(channel_icon_url))) {
     console.log(
       `⛔️ チャンネル名: ${channel_name} のアイコンURL ${channel_icon_url} が無効です。`
     );
     channel_icon_url = await fetchChannelInfo(channel_id); // チャンネル情報を取得してアイコンを更新
+    setupSchedules(); // アイコン更新を反映するためにスケジュールを再設定
   }
 
   const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channel_id}`;

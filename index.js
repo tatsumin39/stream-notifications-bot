@@ -70,7 +70,7 @@ const activeSchedules = new Map();
  * @function setupSchedules
  * @returns {Promise<void>} - スケジュールの設定が完了すると解決されるPromise
  */
-async function setupSchedules() {
+export async function setupSchedules() {
   try {
     // チャンネルデータを取得
     const channels = await getChannelsData();
