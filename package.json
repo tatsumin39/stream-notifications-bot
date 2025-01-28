@@ -20,7 +20,7 @@
     "node-fetch": "^3.3.2",
     "node-schedule": "^2.1.1",
     "pg": "^8.11.3",
-    "undici": "^6.19.2",
+    "undici": "^6.21.1",
     "web-streams-polyfill": "^4.0.0",
     "xml2js": "^0.6.2"
   },
