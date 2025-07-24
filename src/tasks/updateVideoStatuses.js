@@ -110,7 +110,7 @@ async function processVideoUpdate(apiVideoInfo, dbVideo) {
   };
 
   // ステータスが `upcoming` 以外の場合の処理
-  if (apiVideoInfo.liveBroadcastContent !== "upcoming") {
+  if (apiVideoInfo.liveBroadcastContent !== "upcoming" && apiVideoInfo.liveBroadcastContent !== updateVideoData.status) {
     console.info(`✅ ステータス変更 - (Video_ID: ${video_id}) 新ステータス: ${apiVideoInfo.liveBroadcastContent}`);
     await updateExistingVideoData(updateVideoData);
 
