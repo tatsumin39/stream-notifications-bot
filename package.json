@@ -16,7 +16,7 @@
     "dayjs": "^1.11.18",
     "discord.js": "^14.19.3",
     "dotenv": "^16.5.0",
-    "googleapis": "^159.0.0",
+    "googleapis": "^166.0.0",
     "node-fetch": "^3.3.2",
     "node-schedule": "^2.1.1",
     "pg": "^8.16.3",
