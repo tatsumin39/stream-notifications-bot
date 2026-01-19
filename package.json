@@ -19,7 +19,7 @@
     "googleapis": "^169.0.0",
     "node-fetch": "^3.3.2",
     "node-schedule": "^2.1.1",
-    "pg": "^8.16.3",
+    "pg": "^8.17.1",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
