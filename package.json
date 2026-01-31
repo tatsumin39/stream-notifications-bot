@@ -16,10 +16,10 @@
     "dayjs": "^1.11.19",
     "discord.js": "^14.25.1",
     "dotenv": "^17.2.3",
-    "googleapis": "^169.0.0",
+    "googleapis": "^171.0.0",
     "node-fetch": "^3.3.2",
     "node-schedule": "^2.1.1",
-    "pg": "^8.16.3",
+    "pg": "^8.18.0",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
