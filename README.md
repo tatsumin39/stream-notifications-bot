@@ -1,5 +1,11 @@
 # Stream Notifications Bot
 
+> **⚠️ このリポジトリはアーカイブされました / This repository has been archived**
+> 
+> このリポジトリはアーカイブされ、メンテナンスされていません。新しい機能の追加やバグ修正は行われません。既存のコードは参考用として公開されていますが、使用する際は自己責任でお願いします。
+> 
+> This repository has been archived and is no longer maintained. No new features will be added and bug fixes will not be provided. The existing code is available for reference purposes only. Please use it at your own risk.
+
 [English Version](#english-version)
 
 ## 目次
@@ -462,6 +468,10 @@ node src/slashCommand/delete.js <commandId>
 このプロジェクトは [MIT license](LICENSE) の下で公開されています。
 
 ## English Version
+
+> **⚠️ This repository has been archived**
+> 
+> This repository has been archived and is no longer maintained. No new features will be added and bug fixes will not be provided. The existing code is available for reference purposes only. Please use it at your own risk.
 
 ## Table of Contents
 
